@@ -25,10 +25,15 @@ class MatrixSparseDOK(MatrixSparse):
         pass
 
     def __getitem__(self, pos: [Position, position]) -> float:
-        pass
+        #if not (type (pos) is list and Position >= 0 and position >= 0):
+        if not (type (pos) is list) or not (type (Position) is int) or not (type (position) is int) or not (Position >= 0 and position >= 0):
+            raise ValueError('__getitem__() invalid arguments')
+
 
     def __setitem__(self, pos: [Position, position], val: [int, float]):
-        pass
+        #if not (type (Position) is int and Position >= 0) or not (type (position) is int and position >= 0) or not (type (val) is int or float):
+        if not (type (pos) is list and Position >= 0 and position >= 0) or not (type (val) is int or type (val) is float) or not (val > 0):
+            raise ValueError('__setitem__() invalid arguments')
 
     def __len__(self) -> int:
         pass
