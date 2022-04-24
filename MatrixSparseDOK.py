@@ -13,7 +13,7 @@ class MatrixSparseDOK(MatrixSparse):
             raise ValueError('__init__() invalid arguments')
 
     def __copy__(self):
-        pass
+        pass #
 
     def __eq__(self, other: MatrixSparseDOK):
         pass
