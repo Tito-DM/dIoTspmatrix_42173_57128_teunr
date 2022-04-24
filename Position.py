@@ -22,43 +22,57 @@ class Position:
         return self._pos == other._pos
 
 #CODIGO TIAGO
-#creates a position in the dictionary Position_dict and increments its key count and returns the "position" value
-def position_create(row: int, col: int):
+from dataclasses import dataclass
+
+#class/struct created
+#example access: p = position(3, 7)
+
+@dataclass
+class position:
+    row: int
+    column: int
+
+
+#creating DoK position
+#empty dictionary
+Position_dict ={} 
+#creates a Position in the dictionary Position_dict and increments its key count and returns the "Position" value
+def Position_create(row: int, col: int):
     try:
         roww = int(row)
         colu = int(col)
     except:
-        raise ValueError('position_create: invalid arguments')
+        raise ValueError('Position_create: invalid arguments')
 
-    Position_dict [position] = roww, colu
-    return position
+    Position_dict [Position] = roww, colu
+    return Position
 
-#checks if the position exists in the dictionary, and returns true if it exists or false if the bool function returns "None", which means the position doesn't exist
-def position_is(pos: position):
-    return bool(Position_dict.get(position))
+#checks if the Position exists in the dictionary, and returns true if it exists or false if the bool function returns "None", which means the Position doesn't exist
+def Position_is(pos: Position):
+    return bool(Position_dict.get(Position))
 
-def position_row(pos: position):
+def Position_row(pos: Position):
     try:
-        pos1 = position(pos)
+        pos1 = Position(pos)
     except:
-        raise ValueError('position_row: invalid arguments')
+        raise ValueError('Position_row: invalid arguments')
 
-    return position.row
+    return Position.row
 
-def position_col(pos: position):
+def Position_col(pos: Position):
     try:
-        pos1 = position(pos)
+        pos1 = Position(pos)
     except:
-        raise ValueError('position_col: invalid arguments')
+        raise ValueError('Position_col: invalid arguments')
 
-    return position.column
+    return Position.column
 
-def position_equal(pos1: position, pos2: position):
+def Position_equal(pos1: Position, pos2: Position):
     try:
-        posi1 = position(pos1)
-        posi2 = position(pos2)
+        posi1 = Position(pos1)
+        posi2 = Position(pos2)
     except:
-        raise ValueError('position_equal: invalid arguments')
+        raise ValueError('Position_equal: invalid arguments')
 
     return bool(pos1 = pos2)
 
