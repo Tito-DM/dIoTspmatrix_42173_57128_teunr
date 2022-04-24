@@ -9,7 +9,8 @@ class MatrixSparseDOK(MatrixSparse):
     _items = spmatrix
 
     def __init__(self, zero: float = 0.0):
-        pass
+        if not (type(zero) is float):
+            raise ValueError('__init__() invalid arguments')
 
     def __copy__(self):
         pass
