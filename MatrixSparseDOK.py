@@ -29,7 +29,7 @@ class MatrixSparseDOK(MatrixSparse):
         if not (type (pos) is list) or not (type (Position) is int) or not (type (position) is int) or not (Position >= 0 and position >= 0):
             raise ValueError('__getitem__() invalid arguments')
 
-
+    #MATRIZ ESPARSA NÃO PODE TER MAIS DE METADE DE VALORES NÃO NULOS
     def __setitem__(self, pos: [Position, position], val: [int, float]):
         #if not (type (Position) is int and Position >= 0) or not (type (position) is int and position >= 0) or not (type (val) is int or float):
         if not (type (pos) is list and Position >= 0 and position >= 0) or not (type (val) is int or type (val) is float) or not (val > 0):
