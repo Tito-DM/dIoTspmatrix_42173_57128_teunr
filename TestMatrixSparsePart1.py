@@ -129,7 +129,7 @@ class TestMatrixSparseSetItem(unittest.TestCase):
         except ValueError as error:
             self.assertEqual(str(error), '__setitem__() invalid arguments')
 
-    def test___setitem___value_list(self):
+    def test___setitem___value_list(self) :
         m = MatrixSparseImplementation()
         try:
             m.__setitem__((1,1), [0.0])
