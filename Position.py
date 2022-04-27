@@ -1,8 +1,9 @@
 from __future__ import annotations
+from typing import Tuple
 
 
 class Position:
-    _pos = tuple[int, int]
+    _pos = Tuple[int, int]
 
     def __init__(self, row: int, col: int):
         if not (type(row) is int and row >= 0) or not (type(col) is int and col >= 0):

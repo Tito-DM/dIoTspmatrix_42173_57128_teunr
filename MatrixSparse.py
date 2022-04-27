@@ -1,8 +1,8 @@
 from __future__ import annotations
 from Matrix import *
 
-position = tuple[int, int]
-compressed = tuple[position, float, tuple[float, ...], tuple[int], ..., tuple[int, ...]]
+position = Tuple[int, int]
+#compressed = Tuple[position, float, tuple[float, ...], tuple[int], ..., tuple[int, ...]]
 
 
 class MatrixSparse(Matrix):

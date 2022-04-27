@@ -1,21 +1,28 @@
 from __future__ import annotations
+from ast import List
+from typing import Dict
 from MatrixSparse import *
 from Position import *
 
-spmatrix = dict[Position, float]
+spmatrix = Dict[Position, float]
 
 
 class MatrixSparseDOK(MatrixSparse):
     _items = spmatrix
 
     def __init__(self, zero: float = 0.0):
-        pass
+        if  (type(zero) is not float):
+            raise ValueError("__init__() invalid arguments")
+        self._items = {(0, 0): zero}
 
     def __copy__(self):
-        pass
+        if(type(self._items[0]) is not float):
+            return self._items.copy()
 
     def __eq__(self, other: MatrixSparseDOK):
-        pass
+        if(self._items == other._items):
+            return True
+        return False
 
     def __iter__(self):
         pass
@@ -24,10 +31,14 @@ class MatrixSparseDOK(MatrixSparse):
         pass
 
     def __getitem__(self, pos: [Position, position]) -> float:
-        pass
+        if  (type(pos) is not Tuple ) and  (type(pos[0]) is not int and pos[0]  >=0 ) and (type(pos[1]) is not int  and pos[1]>=0 ):
+            raise  ValueError("__getitem__() invalid arguments")
+        self._items[pos]
 
     def __setitem__(self, pos: [Position, position], val: [int, float]):
-        pass
+        if  (type(pos) is not Tuple ) and  (type(pos[0])is not int  and pos[0] >=0 ) and (type(pos[1] is not int  and pos[1] >=0 )) and val is not int:
+            raise  ValueError("__setitem__() invalid arguments")
+        self._items[pos] = val
 
     def __len__(self) -> int:
         pass
@@ -51,7 +62,7 @@ class MatrixSparseDOK(MatrixSparse):
         pass
 
     def col(self, col: int) -> Matrix:
-        pass
+       pass
 
     def diagonal(self) -> Matrix:
         pass
