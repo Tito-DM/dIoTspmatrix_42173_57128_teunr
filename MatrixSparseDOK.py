@@ -6,6 +6,15 @@ from Position import *
 
 spmatrix = Dict[Position, float]
 
+# zero=0.0
+# (1,2), 4.5
+# (1,3), 1.1
+# (1,4), 4.5
+# (1,5), 2.1
+# (1,6), 3.3
+# (2,2), 4.5
+# (2,3), 4.5
+
 
 class MatrixSparseDOK(MatrixSparse):
     _items = spmatrix
@@ -58,13 +67,17 @@ class MatrixSparseDOK(MatrixSparse):
         if isinstance(pos, (tuple,Position)) and isinstance(val, (int, float)):
             if type(pos) is tuple and len(pos) == 2:
                 if type(pos[0]) is int and type(pos[1]) is int and pos[0] >= 0 and pos[1] >= 0:
-                    if val != self.zero:
+                    if Position(pos[0], pos[1]) in self._items:
+                        del self._items[Position(pos[0], pos[1])]
+                    if val != self.zero: 
                         self._items[Position(pos[0], pos[1])] = val
                     else: raise ValueError("__setitem__() invalid arguments")
                 else: raise ValueError("__setitem__() invalid arguments")
             elif type (pos) is Position:
+                if pos in self._items:
+                    del self._items[pos]
                 if val != self.zero:
-                    self._items[Position(pos)] = val
+                    self._items[pos] = val
                 else: raise ValueError("__setitem__() invalid arguments")
             else: raise ValueError("__setitem__() invalid arguments")
         else: raise ValueError("__setitem__() invalid arguments")
@@ -86,8 +99,23 @@ class MatrixSparseDOK(MatrixSparse):
     def _mul_matrix(self, other: MatrixSparse) -> MatrixSparse:
         pass
 
-    def dim(self) -> tuple[Position, ...]:
-        self.dim
+    def dim(self) -> tuple[Position, position]:
+        # if bool(self._items):
+        #     min_row = position[0][0]
+        #     min_col = position[0][1]
+        #     max_row = position[0][0]
+        #     max_col = position[0][1]
+        #     for pos in position:
+        #         if pos[0] > max_row:
+        #             max_row = pos[0]
+        #         if pos[0] < min_row:
+        #             min_row = pos[0]
+        #         if pos[1] > max_col:
+        #             max_col = pos[1]
+        #         if pos[1] < min_col:
+        #             min_col = pos[1]
+        #     return (Position(min_row, min_col), Position(max_row, max_col))
+        # return ()
         
 
 

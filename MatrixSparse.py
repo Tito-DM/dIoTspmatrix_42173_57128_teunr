@@ -9,16 +9,26 @@ class MatrixSparse(Matrix):
     _zero = float
 
     def __init__(self, zero):
-        pass
+        if type(zero) is float:
+            self.zero = zero
+        else: raise ValueError("__init__() invalid arguments")
 
     @property
     def zero(self) -> float:
-        pass
+        return self.zero
 
     @zero.setter
     def zero(self, val: float):
-        pass
-
+        for key in self:
+            if(self[key] == self._zero):
+                del self._items[key]
+        if type(val) is int:
+            val_float = float (val)
+            self._zero = val_float
+        if type(val) is float:
+            self.zero = val
+            
+        
     @abstractmethod
     def __len__(self) -> int:
         raise NotImplementedError
