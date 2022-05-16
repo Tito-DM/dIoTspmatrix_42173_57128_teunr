@@ -15,6 +15,7 @@ class MatrixSparseDOK(MatrixSparse):
             raise ValueError("__init__() invalid arguments")
         self._items = {(0, 0): zero}
 
+
     def __copy__(self):
         if(type(self._items[0]) is not float):
             return self._items.copy()
@@ -29,25 +30,47 @@ class MatrixSparseDOK(MatrixSparse):
 
     def __next__(self):
         pass
+    
+    def __getitem__(self, pos: [Position, position]) -> float:
+        #if pos is a tuple(position) with 2 values, and both values are int, and both values zero or 
+        # positive (no negative places on matrices), if that position exists, returns it, otherwise returns zero
+        if type (pos) is tuple and len(pos) == 2: 
+            if type(pos[0]) is int and type(pos[1]) is int and pos[0] >= 0 and pos[1] >= 0:
+                if Position(pos[0], pos[1]) in self._items: 
+                    return self._items[Position(pos[0], pos[1])] 
+                else:
+                    return self.zero 
+        #it pos is a Position, and that position exists, returns it, otherwise returns zero
+        if type (pos) is Position: 
+            if pos in self._items: 
+                return self._items[pos] 
+            else:
+                return self.zero 
+        #if none of the previous are met, raises ValueError
+        raise ValueError("__getitem__() invalid arguments")
 
-#    def __getitem__(self, pos: [Position, position]) -> float:
-    def __getitem__(self, pos) -> float:
-        if not (type (pos) is list) or not (type (Position) is int) or not (type (position) is int) or not (Position >= 0) or not (position >= 0):
-            raise ValueError("__getitem__() invalid arguments")
-        #self._items[pos]
-        return self._items.get(pos)
+    def __setitem__(self, pos: [Position, position], val: [int, float]):
+        #if pos is a tuple(position) or a Position and val is and int or a float, 
+        #and in the case pos is a tuple(position) with 2 values, and both values are int, and both values zero or
+        #positive (no negative places on matrices), and val is different than self.zero (matrix zero), sets the value
+        #otherwise if pos is a Position and val is different than self.zero (matrix zero), sets the value
 
-        
-#    def __setitem__(self, pos: [Position, position], val: [int, float]):
-#        if not (type (pos) is list) or not (Position >= 0) or not (position >= 0) or not (type (val) is int or type (val) is float) or not (val > 0):
-
-    def __setitem__(self, pos, val):
-        if not (type (pos) is tuple) or not (Position is int) or not (position is int) or not (Position >= 0) or not (position >= 0) or not (type (val) is float) or not (val > 0.0):
-            raise ValueError("__setitem__() invalid arguments")
-        self._items[pos] = val
-
+        if isinstance(pos, (tuple,Position)) and isinstance(val, (int, float)):
+            if type(pos) is tuple and len(pos) == 2:
+                if type(pos[0]) is int and type(pos[1]) is int and pos[0] >= 0 and pos[1] >= 0:
+                    if val != self.zero:
+                        self._items[Position(pos[0], pos[1])] = val
+                    else: raise ValueError("__setitem__() invalid arguments")
+                else: raise ValueError("__setitem__() invalid arguments")
+            elif type (pos) is Position:
+                if val != self.zero:
+                    self._items[Position(pos)] = val
+                else: raise ValueError("__setitem__() invalid arguments")
+            else: raise ValueError("__setitem__() invalid arguments")
+        else: raise ValueError("__setitem__() invalid arguments")
+ 
     def __len__(self) -> int:
-        pass
+        return len(self._items)
 
 #    def _add_number(self, other: [int, float]) -> Matrix:
     def _add_number(self, other) -> Matrix:
