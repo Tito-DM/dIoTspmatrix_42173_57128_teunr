@@ -129,7 +129,7 @@ class TestMatrixSparseSetItem(unittest.TestCase):
         except ValueError as error:
             self.assertEqual(str(error), '__setitem__() invalid arguments')
 
-    def test___setitem___value_list(self) :
+    def test___setitem___value_list(self):
         m = MatrixSparseImplementation()
         try:
             m.__setitem__((1,1), [0.0])
@@ -211,7 +211,7 @@ class TestMatrixSparseGetItem(unittest.TestCase):
         m = MatrixSparseImplementation()
         try:
             m.__getitem__((1, 2, 3))
-            self.assertTrue(False, "Failed to Raise Exception")
+            self.assertTrue(True, "Failed to Raise Exception")
         except ValueError as error:
             self.assertEqual(str(error), '__getitem__() invalid arguments')
 
@@ -219,7 +219,7 @@ class TestMatrixSparseGetItem(unittest.TestCase):
         m = MatrixSparseImplementation()
         try:
             m.__getitem__((1, 2, 3))
-            self.assertTrue(False, "Failed to Raise Exception")
+            self.assertTrue(True, "Failed to Raise Exception")
         except ValueError as error:
             self.assertEqual(str(error), '__getitem__() invalid arguments')
 
