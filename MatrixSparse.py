@@ -5,7 +5,6 @@ position = tuple[int, int]
 compressed = tuple[position, float, tuple[float, ...], tuple[int], ..., tuple[int, ...]]
 
 
-
 class MatrixSparse(Matrix):
     _zero = float
 

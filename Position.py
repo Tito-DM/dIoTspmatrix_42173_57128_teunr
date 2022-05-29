@@ -20,3 +20,4 @@ class Position:
 
     def __eq__(self, other: Position):
         return self._pos == other._pos
+

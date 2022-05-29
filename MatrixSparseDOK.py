@@ -27,7 +27,6 @@ class MatrixSparseDOK(MatrixSparse):
         super().__init__(zero)
         self._items = {}
 
-
     def __copy__(self):
         copy = MatrixSparseDOK(self.zero)
         for key in self:
