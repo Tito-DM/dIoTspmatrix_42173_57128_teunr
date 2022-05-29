@@ -1,564 +1,314 @@
-import unittest
-import sys
-import copy
-from MatrixSparseDOK import *
+from __future__ import annotations
+
+from MatrixSparse import *
+from Position import *
+from typing import Dict
+matrix = Dict[Position, float]
+
+
+class MatrixSparseDOK(MatrixSparse):
+    _items = matrix
+    MSG_setter = "__setitem__() invalid arguments"
+
+    def __init__(self, zero: float = 0.0):
+        if not isinstance(zero, (float, int)):
+            raise ValueError("__init__() invalid arguments")
+        super().__init__(zero)
+        self._items = {}
+
+    def __copy__(self):
+        spmax = MatrixSparseDOK(self.zero)
+        for key in self:
+            spmax[key] = self[key]
+        return spmax
+
+    def __eq__(self, other: MatrixSparseDOK):
+        if isinstance(other,MatrixSparseDOK):
+            return self._items == other._items
+
+  
+    def __iter__(self):
+        self.current_index = 0
+        self.max = len(self._items)
+        self.iter_aux = sorted(list(self._items))
+        return self
+
+
+    # next iterator element
+    def __next__(self):
+        if(self.current_index < self.max):
+            sel_key = self.iter_aux[self.current_index]
+            self.current_index += 1
+            return sel_key
+        else:
+            raise StopIteration
+
+    #get items
+    def __getitem__(self, pos: tuple[Position, position]) -> float:
+        if isinstance(pos,Position) :
+            return self._items[pos] if pos in self._items else self.zero
+        
+        if isinstance(pos[0],int) and isinstance(pos[1],int):
+            if pos[0] >= 0 and pos[1] >= 0:
+                return self._items[Position(pos[0],pos[1])] if Position(pos[0],pos[1]) in self._items else self.zero
+        raise ValueError("__getitem__() invalid arguments")
+
+    def __setitem__(self, pos: tuple[Position, position], val: tuple[int, float]):
+       
+        if isinstance(val,(float,int)) and isinstance(pos,(Position,tuple)):
+            if isinstance(pos, Position):
+                if val != self.zero:
+                    self._items[pos] = val
+                elif pos in self._items:
+                    del self._items[pos]
+            elif isinstance(pos, tuple) and len(pos) == 2 and isinstance(pos[0],int) and isinstance(pos[1],int) and pos[0] >= 0 and pos[1] >= 0:
+                if val != self.zero:
+                    self._items[Position(pos[0],pos[1])] = val
+                elif Position(pos[0],pos[1]) in self._items:
+                    del self._items[Position(pos[0],pos[1])]
+            else:
+                raise ValueError(self.MSG_setter)
+        else:
+            raise ValueError(self.MSG_setter)
+
+    def __len__(self) -> int:
+        return len(self._items)
+
+    def _add_number(self,pos: tuple[Position,position] ,val: tuple[int, float]) -> Matrix:
+        if isinstance(val,(float,int)) and isinstance(pos,(Position,tuple)):
+            if isinstance(pos, Position):
+                if val != self.zero:
+                    self._items[pos] = val
+                elif pos in self._items:
+                    del self._items[pos]
+            elif isinstance(pos, tuple) and len(pos) == 2 and isinstance(pos[0],int) and isinstance(pos[1],int) and pos[0] >= 0 and pos[1] >= 0:
+                if val != self.zero:
+                    self._items[Position(pos[0],pos[1])] = val
+                elif Position(pos[0],pos[1]) in self._items:
+                    del self._items[Position(pos[0],pos[1])]
+            else:
+                raise ValueError(self.MSG_setter)
+        else:
+            raise ValueError(self.MSG_setter)
+    
+    def _add_matrix_auxl(dim_x_length,dim_y_length,dim_x_height,dim_y_height,self,other,dim_x,dim_y) -> MatrixSparse:
+        if((dim_x_length == dim_y_length) and (dim_x_height == dim_y_height) and self.zero == other.zero):
+            spmax = MatrixSparseDOK(self.zero)
+            for x in range(dim_x_height):
+                for y in range(dim_x_length):                 
+                    if (self[x + dim_x[0][0], y + dim_x[0][1]] == self.zero):
+                        if (other[x + dim_y[0][0], y + dim_y[0][1]] != self.zero):
+                            spmax[x + dim_x[0][0], y + dim_x[0][1]] = other[x + dim_y[0][0], y + dim_y[0][1]]
+                    else:
+                        spmax[x + dim_x[0][0], y + dim_x[0][1]] = self[x + dim_x[0][0], y + dim_x[0][1]]
+
+                    if (other[x + dim_y[0][0], y + dim_y[0][1]] == other.zero):
+                        if (self[x + dim_x[0][0], y + dim_x[0][1]] != self.zero):
+                            spmax[x + dim_x[0][0], y + dim_x[0][1]] += self[x + dim_x[0][0], y + dim_x[0][1]]
+                    elif spmax[x + dim_y[0][0], y + dim_y[0][1]] != other.zero:
+                        spmax[x + dim_y[0][0], y + dim_y[0][1]] += other[x + dim_y[0][0], y + dim_y[0][1]]
+                    else:
+                        spmax[x + dim_y[0][0], y + dim_y[0][1]] = other[x + dim_y[0][0], y + dim_y[0][1]]
+            return spmax
+        else:
+            raise ValueError("_add_matrix() incompatible matrices")
+
+    def _add_matrix(self, other: MatrixSparse) -> MatrixSparse:
+        dim_x= self.dim()
+        dim_y = other.dim()
+        dim_x_length = (dim_x[1][1] - dim_x[0][1]) + 1
+        dim_x_height = (dim_x[1][0] - dim_x[0][0]) + 1
+        dim_y_length = (dim_y[1][1] - dim_y[0][1]) + 1
+        dim_y_height = (dim_y[1][0] - dim_y[0][0]) + 1
+        _add_matrix_auxl(dim_x_length,dim_y_length,dim_x_height,dim_y_height,self,other,dim_x,dim_y)
+
+    def _mul_number(self, other: tuple[int, float]) -> Matrix:
+        if isinstance(other, (int, float)):
+            spmax_copy = self.__copy__()
+            for key in self:
+                spmax_copy[key] *= other
+            return spmax_copy
+
+    def _mul_matrix(self, other: MatrixSparse) -> MatrixSparse:
+
+        dim_x = self.dim()
+        dim_y = other.dim()
+        dim_x_length = (dim_x[1][1] - dim_x[0][1]) + 1
+        dim_y_height = (dim_y[1][0] - dim_y[0][0]) + 1
+        max_row_x,max_col_x = dim_x[1]
+        max_row_y,max_col_y = dim_y[1]
+        min_row_x,min_col_x= dim_x[0]
+        min_row_y,min_col_y = dim_y[0]
+
+        if((dim_x_length != dim_y_height) or (self.zero != other.zero)):
+            result = MatrixSparseDOK(self.zero)
+            for x in range(min_row_x, max_row_x + 1):
+                for y in range(min_col_y, min_col_y + 1):
+                    spmax = 0
+                    for k in range(dim_x_length):
+                        if self[(x,k+min_col_x)] != self.zero and other[(k+min_row_y,y)] != other.zero:
+                            spmax += self[(x,k+min_col_x)]*other[(k+min_row_y,y)]
+                        else:
+                            continue
+                    result[(x,y)] = spmax
+        else:
+              raise ValueError("_mul_matrix() incompatible matrices")
+        return result
+
+    def dim(self) -> tuple[Position, position]:
+        if (self._items):
+            pos = list(self._items)
+            min_r = pos[0][0]
+            min_c = pos[0][1]
+            max_r = pos[0][0]
+            max_c = pos[0][1]
+            for p in pos:
+                if p[0] > max_r:
+                    max_r = p[0]
+                if p[0] < min_r:
+                    min_r = p[0]
+                if p[1] > max_c:
+                    max_c = p[1]
+                if p[1] < min_c:
+                    min_c = p[1]
+            return (Position(min_r, min_c), Position(max_r, max_c))
+        return ()
+    
+
+    def row(self, row: int) -> Matrix:
+        spmax = MatrixSparseDOK(self.zero)
+        if isinstance(row,int) and row >= 0:
+            for key in self:
+                if(key[0] == row):
+                    spmax[key] = self[key]
+            return spmax
+
+    def col(self, col: int) -> Matrix:
+        spmax = MatrixSparseDOK(self.zero)
+        if isinstance(col,int) and col >= 0:
+            for key in self:
+                if(key[1] == col):
+                    spmax[key] = self[key]
+            return spmax
+
+    def diagonal(self) -> Matrix:
+        spmax = MatrixSparseDOK(self.zero)
+        for key in self:
+            if(key[1] == key[0]):
+                spmax[key] = self[key]
+        return spmax
+
+    @staticmethod
+    def eye(size: int, unitary: float = 1.0, zero: float = 0.0) -> MatrixSparseDOK:
+        if isinstance(size,int)  and isinstance(unitary,(int,float)) and isinstance(zero,(int,float)):
+            spmax  = MatrixSparseDOK(zero)
+            if size >= 0:
+                for i in range(size):
+                    spmax[Position(i,i)] = unitary
+                return spmax
+        else:
+            raise ValueError("eye() invalid parameters")
+
+    def transpose(self) -> MatrixSparseDOK:
+        spmax = MatrixSparseDOK(self.zero)
+        for key in self:
+            spmax[(key[1],key[0])] = self[key]
+      
+        return spmax 
+
+
+    def compress(self) -> compressed:
+        if self.sparsity() >= 0.5:
+            values = []
+            indexes = []
+            rows = [] 
+            non_null_elem = []
+            upper_left, bottom_right = self.dim()
+            min_row,min_col = upper_left
+            max_row,max_col = bottom_right
+            total_elem_row = max_col-min_col + 1
+            total_rows = max_row-min_row + 1
+            offsets = [0]*total_rows
+            rows = []
+            aux = []
+            for x in range(min_row,max_row+1):
+                aux = []
+                for y in range(min_col,max_col+1):
+                    aux.append(self[Position(x,y)])
+                rows.append(aux)
+            for row_num,row in enumerate(rows):
+                count = 0
+                for elem in row:
+                    if elem != self.zero:
+                        count += 1
+                non_null_elem.append((row,count,row_num+min_row))
+            for row in rows:
+                print(row)
+            rows = list(map(lambda x:(x[0],x[2]),sorted(non_null_elem, key = lambda x: x[1],reverse = True)))
+            for c,aux in enumerate(rows):
+                row,row_num = aux
+                offset_idx = 0
+                value_idx = 0
+                row_elem_idx = 0
+                done = False
+                if (values):
+                    while row_elem_idx < total_elem_row: 
+                        if value_idx + offset_idx < len(values): 
+                            if (values[value_idx+offset_idx] == self.zero or row[row_elem_idx] == self.zero): 
+                                value_idx += 1
+                                row_elem_idx += 1
+                            else:
+                                value_idx = 0
+                                row_elem_idx = 0
+                                offset_idx += 1
+                        else:
+                            break
+                    for i,elem in enumerate(row):
+                        if i + offset_idx < len(values):
+                            indexes[i+offset_idx] = row_num if elem != self.zero else indexes[i+offset_idx]
+                            values[i+offset_idx] = elem if elem != self.zero else values[i+offset_idx]   
+                        else:
+                            indexes.append(row_num if elem != self.zero else -1)
+                            values.append(elem)
+                        offsets[row_num-min_row] = offset_idx                           
+                else:
+                    values = row
+                    indexes = list(map(lambda x: row_num if x != self.zero else -1,row)) 
+                    offsets[0] = offset_idx
+            return ((min_row,min_col), self.zero, tuple(values), tuple(indexes), tuple(offsets))
+        raise ValueError("compress() dense matrix")
+    
+    @staticmethod
+    def doi(compressed_vector: compressed, pos: Position) -> float:
+        if isinstance(compressed_vector,tuple) and isinstance(pos,Position):
+            upper_left, zero, values, indices, offsets = compressed_vector
+            if( isinstance(upper_left,tuple) and len(upper_left) == 2 and isinstance(zero,float) and isinstance(values,tuple) and isinstance(indices,tuple) and isinstance(offsets,tuple)):
+                min_row, min_col = upper_left
+                return values[pos[1] - min_col + offsets[pos[0]-min_row]] if indices[pos[1] - min_col + offsets[pos[0]-min_row]] == pos[0] else zero
+        raise ValueError("doi() invalid parameters")
+    @staticmethod
+    def decompress(compressed_vector: compressed) -> MatrixSparse:
+        if isinstance(compressed_vector,tuple):
+            upper_left, zero, values, indices, offsets = compressed_vector
+            if( isinstance(upper_left,tuple) and len(upper_left) == 2 and 
+                isinstance(zero,float) and
+                isinstance(values,tuple) and 
+                isinstance(indices,tuple) and 
+                isinstance(offsets,tuple)):
+
+                min_row,min_col = upper_left
+                spmax = MatrixSparseDOK(zero)
+                x = 0
+                for i,v in enumerate(values):
+                    if(indices[i] != -1):
+                        print("values: ",v)
+                        print("indice",indices[i])
+                        print("offset: ",offsets[indices[i] - min_row])
+                        print()
+                        spmax[Position(indices[i],i + min_col - offsets[indices[i] - min_row])] = v
+                    else:
+                        x += 1
+                            
+                return spmax
+            raise ValueError("decompress() invalid parameters")
 
-MatrixSparseImplementation = MatrixSparseDOK
-
-
-class TestMatrixSparseInit(unittest.TestCase):
-
-    def test___init___zero_tuple(self):
-        try:
-            m = MatrixSparseImplementation((0.0,))
-            self.assertTrue(False, "Failed to Raise Exception")
-        except ValueError as error:
-            assert str(error) == '__init__() invalid arguments'
-
-    def test___init___zero_list(self):
-        try:
-            m = MatrixSparseImplementation([0.0])
-            self.assertTrue(False, "Failed to Raise Exception")
-        except ValueError as error:
-            assert str(error) == '__init__() invalid arguments'
-
-    def test___init___zero_string(self):
-        try:
-            m = MatrixSparseImplementation('0.0')
-            self.assertTrue(False, "Failed to Raise Exception")
-        except ValueError as error:
-            assert str(error) == '__init__() invalid arguments'
-
-
-class TestMatrixSparseSetItem(unittest.TestCase):
-
-    def test___setitem___pos_Position_1_1(self):
-        m = MatrixSparseImplementation()
-        m[Position(1, 1)] = 1.1
-        self.assertEqual(1, len(m))
-
-    def test___setitem___pos_tuple_1_1(self):
-        m = MatrixSparseImplementation()
-        m[1, 1] = 1.1
-        self.assertEqual(1, len(m))
-
-    def test___setitem___not_adding_item_as_value_zero(self):
-        m = MatrixSparseImplementation(2.2)
-        m[Position(1, 1)] = 1.1
-        m[Position(2, 2)] = 2.2
-        self.assertEqual(2.2, m[Position(2, 2)])
-        self.assertEqual(1, len(m))
-
-    def test___setitem___remove_item_from_matrix(self):
-        m = MatrixSparseImplementation(0.0)
-        m[Position(1, 1)] = 1.1
-        m[Position(2, 2)] = 2.2
-        m[Position(2, 2)] = 0.0
-        self.assertEqual(0.0, m[Position(2, 2)])
-        self.assertEqual(1, len(m))
-
-    def test___setitem___pos_row_minus1(self):
-        m = MatrixSparseImplementation()
-        try:
-            m.__setitem__((-1, 0), -1.0)
-            self.assertTrue(False, "Failed to Raise Exception")
-        except ValueError as error:
-            self.assertEqual(str(error), '__setitem__() invalid arguments')
-
-    def test___setitem___pos_col_minus1(self):
-        m = MatrixSparseImplementation()
-        try:
-            m.__setitem__((0, -1), -1.0)
-            self.assertTrue(False, "Failed to Raise Exception")
-        except ValueError as error:
-            self.assertEqual(str(error), '__setitem__() invalid arguments')
-
-    def test___setitem___pos_row_1point1(self):
-        m = MatrixSparseImplementation()
-        try:
-            m.__setitem__((1.1, 0), 1.1)
-            self.assertTrue(False, "Failed to Raise Exception")
-        except ValueError as error:
-            self.assertEqual(str(error), '__setitem__() invalid arguments')
-
-    def test___setitem___pos_col_1point1(self):
-        m = MatrixSparseImplementation()
-        try:
-            m.__setitem__((0, 1.1), 1.1)
-            self.assertTrue(False, "Failed to Raise Exception")
-        except ValueError as error:
-            self.assertEqual(str(error), '__setitem__() invalid arguments')
-
-    def test___setitem___pos_row_1point1_col_1point1(self):
-        m = MatrixSparseImplementation()
-        try:
-            m.__setitem__((1.1, 1.1), 1.1)
-            self.assertTrue(False, "Failed to Raise Exception")
-        except ValueError as error:
-            self.assertEqual(str(error), '__setitem__() invalid arguments')
-
-    def test___setitem___pos_row_tuple_col_tuple(self):
-        m = MatrixSparseImplementation()
-        try:
-            m.__setitem__(((), ()), 1.1)
-            self.assertTrue(False, "Failed to Raise Exception")
-        except ValueError as error:
-            self.assertEqual(str(error), '__setitem__() invalid arguments')
-
-    def test___setitem___pos_tuple_three_items(self):
-        m = MatrixSparseImplementation()
-        try:
-            m.__setitem__((1, 2, 3), 1.1)
-            self.assertTrue(False, "Failed to Raise Exception")
-        except ValueError as error:
-            self.assertEqual(str(error), '__setitem__() invalid arguments')
-
-    def test___setitem___pos_zero_tuple(self):
-        m = MatrixSparseImplementation()
-        try:
-            m.__setitem__((1, 2, 3), 1.1)
-            self.assertTrue(False, "Failed to Raise Exception")
-        except ValueError as error:
-            self.assertEqual(str(error), '__setitem__() invalid arguments')
-
-    def test___setitem___value_tuple(self):
-        m = MatrixSparseImplementation()
-        try:
-            m.__setitem__((1,1), (0.0,))
-            self.assertTrue(False, "Failed to Raise Exception")
-        except ValueError as error:
-            self.assertEqual(str(error), '__setitem__() invalid arguments')
-
-    def test___setitem___value_list(self) :
-        m = MatrixSparseImplementation()
-        try:
-            m.__setitem__((1,1), [0.0])
-            self.assertTrue(False, "Failed to Raise Exception")
-        except ValueError as error:
-            self.assertEqual(str(error), '__setitem__() invalid arguments')
-
-    def test___setitem___value_string(self):
-        m = MatrixSparseImplementation()
-        try:
-            m.__setitem__((1,1), '0.0')
-            self.assertTrue(False, "Failed to Raise Exception")
-        except ValueError as error:
-            self.assertEqual(str(error), '__setitem__() invalid arguments')
-
-
-class TestMatrixSparseGetItem(unittest.TestCase):
-
-    def test___getitem___using_Position_on_m1x1_with_1item(self):
-        m = MatrixSparseImplementation()
-        m[Position(1, 1)] = 1.1
-        self.assertEqual(m[Position(1, 1)], 1.1)
-
-    def test___getitem___using_tuple_m1x1_with_1item(self):
-        m = MatrixSparseImplementation()
-        m[Position(1, 1)] = 1.1
-        self.assertEqual(m[1, 1], 1.1)
-
-    def test___getitem___pos_row_minus1(self):
-        m = MatrixSparseImplementation()
-        m[Position(1, 1)] = 1.1
-        try:
-            m.__getitem__((-1, 0))
-            self.assertTrue(False, "Failed to Raise Exception")
-        except ValueError as error:
-            self.assertEqual(str(error), '__getitem__() invalid arguments')
-
-    def test___getitem___pos_col_minus1(self):
-        m = MatrixSparseImplementation()
-        try:
-            m.__getitem__((0, -1))
-            self.assertTrue(False, "Failed to Raise Exception")
-        except ValueError as error:
-            self.assertEqual(str(error), '__getitem__() invalid arguments')
-
-    def test___getitem___pos_row_1point1(self):
-        m = MatrixSparseImplementation()
-        try:
-            m.__getitem__((1.1, 0))
-            self.assertTrue(False, "Failed to Raise Exception")
-        except ValueError as error:
-            self.assertEqual(str(error), '__getitem__() invalid arguments')
-
-    def test___getitem___pos_col_1point1(self):
-        m = MatrixSparseImplementation()
-        try:
-            m.__getitem__((0, 1.1))
-            self.assertTrue(False, "Failed to Raise Exception")
-        except ValueError as error:
-            self.assertEqual(str(error), '__getitem__() invalid arguments')
-
-    def test___getitem___pos_row_1point1_col_1point1(self):
-        m = MatrixSparseImplementation()
-        try:
-            m.__getitem__((1.1, 1.1))
-            self.assertTrue(False, "Failed to Raise Exception")
-        except ValueError as error:
-            self.assertEqual(str(error), '__getitem__() invalid arguments')
-
-    def test___getitem___pos_row_tuple_col_tuple(self):
-        m = MatrixSparseImplementation()
-        try:
-            m.__getitem__(((), ()))
-            self.assertTrue(False, "Failed to Raise Exception")
-        except ValueError as error:
-            self.assertEqual(str(error), '__getitem__() invalid arguments')
-
-    def test___getitem___pos_tuple_three_items(self):
-        m = MatrixSparseImplementation()
-        try:
-            m.__getitem__((1, 2, 3))
-            self.assertTrue(False, "Failed to Raise Exception")
-        except ValueError as error:
-            self.assertEqual(str(error), '__getitem__() invalid arguments')
-
-    def test___getitem___pos_zero_tuple(self):
-        m = MatrixSparseImplementation()
-        try:
-            m.__getitem__((1, 2, 3))
-            self.assertTrue(False, "Failed to Raise Exception")
-        except ValueError as error:
-            self.assertEqual(str(error), '__getitem__() invalid arguments')
-
-
-class TestMatrixSparseZeroGetter(unittest.TestCase):
-
-    def test_zerogetter_empty_matrix_zero_default(self):
-        m = MatrixSparseImplementation()
-        self.assertEqual(0.0, m.zero)
-
-    def test_zerogetter_empty_matrix_zero_0(self):
-        m = MatrixSparseImplementation(0.0)
-        self.assertEqual(0.0, m.zero)
-
-    def test_zerogetter_empty_matrix_zero_maxsize(self):
-        m = MatrixSparseImplementation(sys.maxsize)
-        self.assertEqual(sys.maxsize, m.zero)
-
-    def test_zerogetter_empty_matrix_zero_minus_maxsize(self):
-        m = MatrixSparseImplementation(-sys.maxsize)
-        self.assertEqual(-sys.maxsize, m.zero)
-
-
-class TestMatrixSparseZeroSetter(unittest.TestCase):
-
-    def test_zerosetter_change_zero_from_1_to_0(self):
-        m = MatrixSparseImplementation(1.0)
-        m.zero = 0.0
-        self.assertEqual(0.0, m.zero)
-        self.assertEqual(0, len(m))
-
-    def test_zerosetter_change_zere_from_default_to_1e7(self):
-        m = MatrixSparseImplementation()
-        m.zero = 1e7
-        self.assertEqual(1e7, m.zero)
-        self.assertEqual(0, len(m))
-
-    def test_zerosetter_change_zero_from_default_to_minus_1e7(self):
-        m = MatrixSparseImplementation()
-        m.zero = -1e7
-        self.assertEqual(-1e7, m.zero)
-        self.assertEqual(0, len(m))
-
-    def test_zerosetter_change_zero_from_default_to_1point1_removing_matrix_elements(self):
-        m = MatrixSparseImplementation(0.0)
-        m[Position(1, 1)] = 1.1
-        m.zero = 1.1
-        m.zero = 2.2
-        self.assertEqual(2.2, m[Position(1, 1)])
-        self.assertEqual(0, len(m))
-
-    def test_zerosetter_after_multiple_zero_sets(self):
-        m = MatrixSparseImplementation(6.0)
-        m[Position(1, 1)] = 1.1
-        m[Position(2, 2)] = 2.2
-        m[Position(3, 3)] = 3.3
-        m[Position(4, 4)] = 4.4
-        m[Position(5, 5)] = 5.5
-        m.zero = 1.1
-        m.zero = 2.2
-        m.zero = 3.3
-        m.zero = 4.4
-        m.zero = 5.5
-        self.assertEqual(5.5, m.zero)
-        self.assertEqual(0, len(m))
-
-
-class TestMatrixSparseCopy(unittest.TestCase):
-
-    def test___copy___empty_matrix_with_zero_as_1(self):
-        m = MatrixSparseImplementation(1.0)
-        self.assertEqual(1.0, m.__copy__().zero)
-
-    def test___copy___empty_matrix_adding_element_to_copy(self):
-        m = MatrixSparseImplementation()
-        m2 = m.__copy__()
-        m2.zero = 1e7
-        m[1, 1] = 1.1
-        self.assertEqual(1e7, m2[1, 1])
-        self.assertEqual(0, len(m2))
-        self.assertEqual(1, len(m))
-
-    def test___copy___deepcopy_empty_matrix_adding_element_to_copy(self):
-        m = MatrixSparseImplementation()
-        m2 = copy.deepcopy(m)
-        m2.zero = 1e7
-        m[1, 1] = 1.1
-        self.assertEqual(1e7, m2[1, 1])
-        self.assertEqual(0, len(m2))
-        self.assertEqual(1, len(m))
-
-
-class TestMatrixSparseDim(unittest.TestCase):
-
-    def test_dim_empty_matrix(self):
-        self.assertEqual((), MatrixSparseImplementation().dim())
-
-    def test_dim_m1x1(self):
-        m = MatrixSparseImplementation()
-        m[1, 2] = 1.2
-        dim = m.dim()
-        self.assertEqual(Position(1, 2), dim[0])
-        self.assertEqual(Position(1, 2), dim[1])
-
-    def test_dim_m3x3(self):
-        m = MatrixSparseImplementation(0.0)
-        m[Position(1, 2)] = 1.2
-        m[Position(2, 1)] = 2.1
-        m[Position(2, 3)] = 2.3
-        m[Position(3, 2)] = 3.2
-        dim = m.dim()
-        self.assertEqual(Position(1, 1), dim[0])
-        self.assertEqual(Position(3, 3), dim[1])
-
-    def test_dim_m10000000x10000000(self):
-        m = MatrixSparseImplementation(1e7)
-        m[Position(1, 10000000)] = 1.1
-        m[Position(10000000, 1)] = 1.1
-        dim = m.dim()
-        self.assertEqual(Position(1, 1), dim[0])
-        self.assertEqual(Position(10000000, 10000000), dim[1])
-
-
-class TestMatrixSparseStr(unittest.TestCase):
-
-    def test___str___m2x2_2items(self):
-        m = MatrixSparseImplementation()
-        m[Position(1, 2)] = 1.2
-        m[Position(2, 1)] = 2.1
-        self.assertEqual("0 1.2\n2.1 0", str(m))
-
-    def test___str___m2x3_4items(self):
-        m = MatrixSparseImplementation()
-        m[Position(1, 2)] = 1.2
-        m[Position(1, 3)] = 1.3
-        m[Position(2, 2)] = 2.2
-        m[Position(2, 4)] = 2.4
-        self.assertEqual("1.2 1.3 0\n2.2 0 2.4", str(m))
-
-    def test___str___m2x3_4items_zero_as_3(self):
-        m = MatrixSparseImplementation(3)
-        m[Position(1, 2)] = 1.2
-        m[Position(1, 3)] = 1.3
-        m[Position(2, 2)] = 2.2
-        m[Position(2, 4)] = 2.4
-        self.assertEqual("1.2 1.3 3\n2.2 3 2.4", str(m))
-
-    def test___str___m1x1_1item(self):
-        m = MatrixSparseImplementation()
-        m[Position(1, 1)] = 1.1
-        self.assertEqual("1.1", str(m))
-
-    def test___str___matrix_emtpy(self):
-        m = MatrixSparseImplementation()
-        self.assertEqual("", str(m))
-
-
-class TestMatrixSparseRow(unittest.TestCase):
-
-    def test_row_m2x2_2items(self):
-        m = MatrixSparseImplementation()
-        init = {(1, 2): 1.2, (2, 1): 2.1}
-        for key, value in init.items():
-            m[Position(key[0], key[1])] = value
-        m2 = m.row(1)
-        test = {(1, 1): 0.0, (1, 2): 1.2}
-        for key, value in test.items():
-            self.assertAlmostEqual(value, m2[Position(key[0], key[1])])
-
-    def test_row_m2x2_2items_zero_as_3(self):
-        m = MatrixSparseImplementation(3.0)
-        init = {(1, 2): 1.2, (2, 1): 2.1}
-        for key, value in init.items():
-            m[Position(key[0], key[1])] = value
-        m2 = m.row(1)
-        test = {(1, 1): 3.0, (1, 2): 1.2}
-        for key, value in test.items():
-            self.assertAlmostEqual(value, m2[Position(key[0], key[1])])
-
-    def test_row_m1x1_1item(self):
-        m = MatrixSparseImplementation()
-        init = {(1, 1): 1.1}
-        for key, value in init.items():
-            m[Position(key[0], key[1])] = value
-        m2 = m.row(1)
-        test = {(1, 1): 1.1}
-        for key, value in test.items():
-            self.assertAlmostEqual(value, m2[Position(key[0], key[1])])
-
-    def test_row_m1x100_100items(self):
-        m = MatrixSparseImplementation()
-        vals = tuple([x for x in range(1, 100)])
-        for i in vals:
-            m[Position(1, vals[-i])] = i
-        m2 = m.row(1)
-        for i in vals:
-            self.assertAlmostEqual(m2[Position(1, vals[-i])], m[Position(1, vals[-i])])
-
-    def test_row_m1000x1000_4items(self):
-        m = MatrixSparseImplementation()
-        init = {(1, 1): 1.1, (1, 1000): 1.1000, (1000, 1): 1000.1, (1000, 1000): 1000.1000}
-        for key, value in init.items():
-            m[Position(key[0], key[1])] = value
-        m2 = m.row(1)
-        test = {(1, 1): 1.1, (1, 1000): 1.1000}
-        for key, value in test.items():
-            self.assertAlmostEqual(value, m2[Position(key[0], key[1])])
-
-
-class TestMatrixSparseCol(unittest.TestCase):
-
-    def test_col_m2x2_2items(self):
-        m = MatrixSparseImplementation()
-        init = {(1, 2): 1.2, (2, 1): 2.1}
-        for key, value in init.items():
-            m[Position(key[0], key[1])] = value
-        m2 = m.col(2)
-        test = {(1, 2): 1.2, (2, 2): 0.0}
-        for key, value in test.items():
-            self.assertAlmostEqual(value, m2[Position(key[0], key[1])])
-
-    def test_col_m2x2_2items_zero_as_3(self):
-        m = MatrixSparseImplementation(3.0)
-        init = {(1, 2): 1.2, (2, 1): 2.1}
-        for key, value in init.items():
-            m[Position(key[0], key[1])] = value
-        m2 = m.col(1)
-        test = {(1, 1): 3.0, (2, 1): 2.1}
-        for key, value in test.items():
-            self.assertAlmostEqual(value, m2[Position(key[0], key[1])])
-
-    def test_col_m1x1_1item(self):
-        m = MatrixSparseImplementation()
-        init = {(1, 1): 1.1}
-        for key, value in init.items():
-            m[Position(key[0], key[1])] = value
-        m2 = m.row(1)
-        test = {(1, 1): 1.1}
-        for key, value in test.items():
-            self.assertAlmostEqual(value, m2[Position(key[0], key[1])])
-
-    def test_col_m1x100_100items(self):
-        m = MatrixSparseImplementation()
-        vals = tuple([x for x in range(1, 100)])
-        for i in vals:
-            m[Position(vals[-i], 1)] = i
-        m2 = m.col(1)
-        for i in vals:
-            self.assertAlmostEqual(m2[Position(vals[-i], 1)], m[Position(vals[-i], 1)])
-
-    def test_col_m1000x1000_4items(self):
-        m = MatrixSparseImplementation()
-        init = {(1, 1): 1.1, (1, 1000): 1.1000, (1000, 1): 1000.1, (1000, 1000): 1000.1000}
-        for key, value in init.items():
-            m[Position(key[0], key[1])] = value
-        m2 = m.col(1000)
-        test = {(1, 1000): 1.1000, (1000, 1000): 1000.1000}
-        for key, value in test.items():
-            self.assertAlmostEqual(value, m2[Position(key[0], key[1])])
-
-
-class TestMatrixSparseDiagonal(unittest.TestCase):
-
-    def test_diagonal_m2x2_2items(self):
-        m = MatrixSparseImplementation()
-        init = {(1, 1): 1.1, (2, 2): 2.2}
-        for key, value in init.items():
-            m[Position(key[0], key[1])] = value
-        m2 = m.diagonal()
-        test = {(1, 1): 1.1, (2, 2): 2.2}
-        for key, value in test.items():
-            self.assertAlmostEqual(value, m2[Position(key[0], key[1])])
-
-    def test_diagonal_m3x3_2items_zero_as_3(self):
-        m = MatrixSparseImplementation(3.0)
-        init = {(1, 1): 1.1, (3, 3): 3.3}
-        for key, value in init.items():
-            m[Position(key[0], key[1])] = value
-        m2 = m.diagonal()
-        test = {(1, 1): 1.1, (2, 2): 3.0, (3, 3): 3.3}
-        for key, value in test.items():
-            self.assertAlmostEqual(value, m2[Position(key[0], key[1])])
-
-    def test_diagonal_m1x1_1item(self):
-        m = MatrixSparseImplementation()
-        init = {(1, 1): 1.1}
-        for key, value in init.items():
-            m[Position(key[0], key[1])] = value
-        m2 = m.diagonal()
-        test = {(1, 1): 1.1}
-        for key, value in test.items():
-            self.assertAlmostEqual(value, m2[Position(key[0], key[1])])
-
-    def test_diagonal_m1000x1000_4items(self):
-        m = MatrixSparseImplementation()
-        init = {(1, 1): 1.1, (1, 1000): 1.1000, (1000, 1): 1000.1, (1000, 1000): 1000.1000}
-        for key, value in init.items():
-            m[Position(key[0], key[1])] = value
-        m2 = m.diagonal()
-        test = {(1, 1): 1.1, (1000, 1000): 1000.1000}
-        for key, value in test.items():
-            self.assertAlmostEqual(value, m2[Position(key[0], key[1])])
-
-
-class TestMatrixSparseSparsity(unittest.TestCase):
-
-    def test_sparsity_empty_matrix(self):
-        m = MatrixSparseImplementation()
-        self.assertAlmostEqual(1.0, m.sparsity())
-
-    def test_sparsity_m2x2_with_2items(self):
-        m = MatrixSparseImplementation()
-        m[1, 2] = 1.2
-        m[2, 1] = 2.1
-        self.assertAlmostEqual(0.5, m.sparsity())
-
-    def test_sparsity_m1x1_1item_after_change_of_zero(self):
-        m = MatrixSparseImplementation()
-        m[1, 2] = 1.2
-        m[2, 1] = 2.1
-        m.zero = 1.2
-        self.assertAlmostEqual(0.0, m.sparsity())
-
-    def test_sparsity_m1001x1001_9631items_random(self):
-        seed = 100001
-
-        def randint(a, b):
-            nonlocal seed
-            seed = (seed * 125) % 2796203
-            return a + seed % (b - a + 1)
-
-        vals = [Position(randint(1, 999), randint(1, 999)) for x in range(10000)]
-        m = MatrixSparseImplementation()
-        m[Position(0, 0)] = 1.0
-        m[Position(1000, 1000)] = 1000.1000
-        for i in vals:
-            m[i] = randint(1, 10000)
-        self.assertAlmostEqual( (1001 * 1001 - 9631) / float(1001 * 1001), m.sparsity() )
-
-
-if __name__ == '__main__':
-    unittest.main()
