@@ -7,6 +7,7 @@ from Position import *
 spmatrix = Dict[Position, float]
 
 
+
 class MatrixSparseDOK(MatrixSparse):
     _items = spmatrix
 
