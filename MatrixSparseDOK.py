@@ -20,14 +20,17 @@ class MatrixSparseDOK(MatrixSparse):
     _items = spmatrix
 
     def __init__(self, zero: float = 0.0):
-        if  (type(zero) is not float):
+        if not isinstance(zero, (int, float)):
             raise ValueError("__init__() invalid arguments")
         self._items = {(0, 0): zero}
 
 
     def __copy__(self):
-        if(type(self._items[0]) is not float):
-            return self._items.copy()
+        copy = MatrixSparseDOK(self.zero)
+        for key in self:
+            copy[key] = self[key]
+            
+        return copy
 
     def __eq__(self, other: MatrixSparseDOK):
         if(self._items == other._items):
@@ -69,18 +72,33 @@ class MatrixSparseDOK(MatrixSparse):
                 if type(pos[0]) is int and type(pos[1]) is int and pos[0] >= 0 and pos[1] >= 0:
                     if Position(pos[0], pos[1]) in self._items:
                         del self._items[Position(pos[0], pos[1])]
-                    if val != self.zero: 
+                    elif val != self.zero: 
                         self._items[Position(pos[0], pos[1])] = val
                     else: raise ValueError("__setitem__() invalid arguments")
                 else: raise ValueError("__setitem__() invalid arguments")
             elif type (pos) is Position:
                 if pos in self._items:
                     del self._items[pos]
-                if val != self.zero:
+                elif val != self.zero:
                     self._items[pos] = val
                 else: raise ValueError("__setitem__() invalid arguments")
             else: raise ValueError("__setitem__() invalid arguments")
         else: raise ValueError("__setitem__() invalid arguments")
+        # if isinstance(val,(float,int)) and isinstance(pos,(Position,tuple)):
+        #     if isinstance(pos, Position):
+        #         if val != self.zero:
+        #             self._items[pos] = val
+        #         elif pos in self._items:
+        #             del self._items[pos]
+        #     elif isinstance(pos, tuple) and len(pos) == 2 and isinstance(pos[0],int) and isinstance(pos[1],int) and pos[0] >= 0 and pos[1] >= 0:
+        #         if val != self.zero:
+        #             self._items[Position(pos[0],pos[1])] = val
+        #         elif Position(pos[0],pos[1]) in self._items:
+        #             del self._items[Position(pos[0],pos[1])]
+        #     else:
+        #         raise ValueError("__setitem__() invalid arguments")
+        # else:
+        #     raise ValueError("__setitem__() invalid arguments")
  
     def __len__(self) -> int:
         return len(self._items)
