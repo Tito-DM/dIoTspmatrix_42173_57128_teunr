@@ -1,22 +1,28 @@
 from __future__ import annotations
+from ast import List
+from typing import Dict
 from MatrixSparse import *
 from Position import *
 
-spmatrix = dict[Position, float]
+spmatrix = Dict[Position, float]
 
 
 class MatrixSparseDOK(MatrixSparse):
     _items = spmatrix
 
     def __init__(self, zero: float = 0.0):
-        if not (type(zero) is float):
-            raise ValueError('__init__() invalid arguments')
+        if  (type(zero) is not float):
+            raise ValueError("__init__() invalid arguments")
+        self._items = {(0, 0): zero}
 
     def __copy__(self):
-        pass #
+        if(type(self._items[0]) is not float):
+            return self._items.copy()
 
     def __eq__(self, other: MatrixSparseDOK):
-        pass
+        if(self._items == other._items):
+            return True
+        return False
 
     def __iter__(self):
         pass
@@ -25,15 +31,14 @@ class MatrixSparseDOK(MatrixSparse):
         pass
 
     def __getitem__(self, pos: [Position, position]) -> float:
-        #if not (type (pos) is list and Position >= 0 and position >= 0):
         if not (type (pos) is list) or not (type (Position) is int) or not (type (position) is int) or not (Position >= 0 and position >= 0):
             raise ValueError('__getitem__() invalid arguments')
+        self._items[pos]
 
-    #MATRIZ ESPARSA NÃO PODE TER MAIS DE METADE DE VALORES NÃO NULOS
     def __setitem__(self, pos: [Position, position], val: [int, float]):
-        #if not (type (Position) is int and Position >= 0) or not (type (position) is int and position >= 0) or not (type (val) is int or float):
         if not (type (pos) is list and Position >= 0 and position >= 0) or not (type (val) is int or type (val) is float) or not (val > 0):
             raise ValueError('__setitem__() invalid arguments')
+        self._items[pos] = val
 
     def __len__(self) -> int:
         pass
@@ -57,7 +62,7 @@ class MatrixSparseDOK(MatrixSparse):
         pass
 
     def col(self, col: int) -> Matrix:
-        pass
+       pass
 
     def diagonal(self) -> Matrix:
         pass
