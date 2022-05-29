@@ -100,25 +100,8 @@ class MatrixSparseDOK(MatrixSparse):
         pass
 
     def dim(self) -> tuple[Position, position]:
-        # if bool(self._items):
-        #     min_row = position[0][0]
-        #     min_col = position[0][1]
-        #     max_row = position[0][0]
-        #     max_col = position[0][1]
-        #     for pos in position:
-        #         if pos[0] > max_row:
-        #             max_row = pos[0]
-        #         if pos[0] < min_row:
-        #             min_row = pos[0]
-        #         if pos[1] > max_col:
-        #             max_col = pos[1]
-        #         if pos[1] < min_col:
-        #             min_col = pos[1]
-        #     return (Position(min_row, min_col), Position(max_row, max_col))
-        # return ()
+        pass
         
-
-
     def row(self, row: int) -> Matrix:
         pass
 
