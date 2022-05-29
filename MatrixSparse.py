@@ -33,8 +33,17 @@ class MatrixSparse(Matrix):
     def __len__(self) -> int:
         raise NotImplementedError
 
-    def sparsity(self) -> float:
-        pass
+    def sparsity(self) -> float: #o sparsity só adiciona 2 posições, a primeira e a ultima, daí só precisar comprarar ambas
+        positions = self.dim()
+        if bool(self._items):
+            row_min, col_min = positions[0]
+            row_max, col_max = positions[1]
+            total_elem = (col_max - col_min + 1) * (row_max - row_min + 1)
+            zero_null = total_elem - len(self._items)
+            
+            return zero_null/float(total_elem)
+        else:
+            return 1.0
 
     @staticmethod
     @abstractmethod
