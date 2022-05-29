@@ -11,12 +11,12 @@ class MatrixSparse(Matrix):
 
     def __init__(self, zero):
         if type(zero) is float:
-            self.zero = zero
+            self._zero = zero
         else: raise ValueError("__init__() invalid arguments")
 
     @property
     def zero(self) -> float:
-        return self.zero
+        return self._zero
 
     @zero.setter
     def zero(self, val: float):
@@ -27,7 +27,7 @@ class MatrixSparse(Matrix):
             val_float = float (val)
             self._zero = val_float
         if type(val) is float:
-            self.zero = val
+            self._zero = val
             
         
     @abstractmethod

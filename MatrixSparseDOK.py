@@ -27,7 +27,7 @@ class MatrixSparseDOK(MatrixSparse):
 
 
     def __copy__(self):
-        copy = MatrixSparseDOK(self.zero)
+        copy = MatrixSparseDOK(self._zero)
         for key in self:
             copy[key] = self[key]
             
@@ -52,35 +52,35 @@ class MatrixSparseDOK(MatrixSparse):
                 if Position(pos[0], pos[1]) in self._items: 
                     return self._items[Position(pos[0], pos[1])] 
                 else:
-                    return self.zero 
+                    return self._zero 
         #it pos is a Position, and that position exists, returns it, otherwise returns zero
         if type (pos) is Position: 
             if pos in self._items: 
                 return self._items[pos] 
             else:
-                return self.zero 
+                return self._zero 
         #if none of the previous are met, raises ValueError
         raise ValueError("__getitem__() invalid arguments")
 
     def __setitem__(self, pos: [Position, position], val: [int, float]):
         #if pos is a tuple(position) or a Position and val is and int or a float, 
         #and in the case pos is a tuple(position) with 2 values, and both values are int, and both values zero or
-        #positive (no negative places on matrices), and val is different than self.zero (matrix zero), sets the value
-        #otherwise if pos is a Position and val is different than self.zero (matrix zero), sets the value
+        #positive (no negative places on matrices), and val is different than self._zero (matrix zero), sets the value
+        #otherwise if pos is a Position and val is different than self._zero (matrix zero), sets the value
 
         if isinstance(pos, (tuple,Position)) and isinstance(val, (int, float)):
             if type(pos) is tuple and len(pos) == 2:
                 if type(pos[0]) is int and type(pos[1]) is int and pos[0] >= 0 and pos[1] >= 0:
                     if Position(pos[0], pos[1]) in self._items:
                         del self._items[Position(pos[0], pos[1])]
-                    elif val != self.zero: 
+                    elif val != self._zero: 
                         self._items[Position(pos[0], pos[1])] = val
                     else: raise ValueError("__setitem__() invalid arguments")
                 else: raise ValueError("__setitem__() invalid arguments")
             elif type (pos) is Position:
                 if pos in self._items:
                     del self._items[pos]
-                elif val != self.zero:
+                elif val != self._zero:
                     self._items[pos] = val
                 else: raise ValueError("__setitem__() invalid arguments")
             else: raise ValueError("__setitem__() invalid arguments")
