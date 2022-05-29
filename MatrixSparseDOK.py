@@ -84,21 +84,7 @@ class MatrixSparseDOK(MatrixSparse):
                 else: raise ValueError("__setitem__() invalid arguments")
             else: raise ValueError("__setitem__() invalid arguments")
         else: raise ValueError("__setitem__() invalid arguments")
-        # if isinstance(val,(float,int)) and isinstance(pos,(Position,tuple)):
-        #     if isinstance(pos, Position):
-        #         if val != self.zero:
-        #             self._items[pos] = val
-        #         elif pos in self._items:
-        #             del self._items[pos]
-        #     elif isinstance(pos, tuple) and len(pos) == 2 and isinstance(pos[0],int) and isinstance(pos[1],int) and pos[0] >= 0 and pos[1] >= 0:
-        #         if val != self.zero:
-        #             self._items[Position(pos[0],pos[1])] = val
-        #         elif Position(pos[0],pos[1]) in self._items:
-        #             del self._items[Position(pos[0],pos[1])]
-        #     else:
-        #         raise ValueError("__setitem__() invalid arguments")
-        # else:
-        #     raise ValueError("__setitem__() invalid arguments")
+        
  
     def __len__(self) -> int:
         return len(self._items)
