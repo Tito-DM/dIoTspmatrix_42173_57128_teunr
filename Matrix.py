@@ -91,4 +91,3 @@ class Matrix(ABC):
     @abstractmethod
     def transpose(self) -> Matrix:
         raise NotImplementedError
-

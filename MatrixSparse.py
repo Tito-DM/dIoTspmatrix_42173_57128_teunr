@@ -26,7 +26,6 @@ class MatrixSparse(Matrix):
         if type(val) is float:
             self._zero = val
             
-        
     @abstractmethod
     def __len__(self) -> int:
         raise NotImplementedError

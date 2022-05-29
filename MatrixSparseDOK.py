@@ -16,7 +16,6 @@ spmatrix = Dict[Position, float]
 # (2,3), 4.5
 
 
-
 class MatrixSparseDOK(MatrixSparse):
     _items = spmatrix
 
