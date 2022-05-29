@@ -23,14 +23,15 @@ class MatrixSparseDOK(MatrixSparse):
     def __init__(self, zero: float = 0.0):
         if not isinstance(zero, (int, float)):
             raise ValueError("__init__() invalid arguments")
-        self._items = {(0, 0): zero}
+        #super() para chamar a classe correta, devido às inheritances
+        super().__init__(zero)
+        self._items = {}
 
 
     def __copy__(self):
-        copy = MatrixSparseDOK(self._zero)
+        copy = MatrixSparseDOK(self.zero)
         for key in self:
             copy[key] = self[key]
-            
         return copy
 
     def __eq__(self, other: MatrixSparseDOK):
@@ -39,10 +40,18 @@ class MatrixSparseDOK(MatrixSparse):
         return False
 
     def __iter__(self):
-        pass
+        self.actual = 0
+        self.max = len(self._items)
+        self.iter_matrix = sorted(list(self._items))
+        return self
 
     def __next__(self):
-        pass
+        if(self.actual < self.max):
+            key = self.iter_matrix[self.actual]
+            self.actual += 1
+            return key
+        else:
+            raise StopIteration
     
     def __getitem__(self, pos: [Position, position]) -> float:
         #if pos is a tuple(position) with 2 values, and both values are int, and both values zero or 
@@ -52,13 +61,13 @@ class MatrixSparseDOK(MatrixSparse):
                 if Position(pos[0], pos[1]) in self._items: 
                     return self._items[Position(pos[0], pos[1])] 
                 else:
-                    return self._zero 
+                    return self.zero 
         #it pos is a Position, and that position exists, returns it, otherwise returns zero
         if type (pos) is Position: 
             if pos in self._items: 
                 return self._items[pos] 
             else:
-                return self._zero 
+                return self.zero 
         #if none of the previous are met, raises ValueError
         raise ValueError("__getitem__() invalid arguments")
 
@@ -71,17 +80,17 @@ class MatrixSparseDOK(MatrixSparse):
         if isinstance(pos, (tuple,Position)) and isinstance(val, (int, float)):
             if type(pos) is tuple and len(pos) == 2:
                 if type(pos[0]) is int and type(pos[1]) is int and pos[0] >= 0 and pos[1] >= 0:
-                    if Position(pos[0], pos[1]) in self._items:
-                        del self._items[Position(pos[0], pos[1])]
-                    elif val != self._zero: 
+                    if val != self.zero: 
                         self._items[Position(pos[0], pos[1])] = val
+                    elif Position(pos[0], pos[1]) in self._items:
+                        del self._items[Position(pos[0], pos[1])]
                     else: raise ValueError("__setitem__() invalid arguments")
                 else: raise ValueError("__setitem__() invalid arguments")
             elif type (pos) is Position:
-                if pos in self._items:
-                    del self._items[pos]
-                elif val != self._zero:
+                if val != self.zero:
                     self._items[pos] = val
+                elif pos in self._items:
+                    del self._items[pos]
                 else: raise ValueError("__setitem__() invalid arguments")
             else: raise ValueError("__setitem__() invalid arguments")
         else: raise ValueError("__setitem__() invalid arguments")
@@ -105,16 +114,48 @@ class MatrixSparseDOK(MatrixSparse):
         pass
 
     def dim(self) -> tuple[Position, position]:
-        pass
+        #apanha os valores (posições) minimos e maximos do teste, verifica se cada um é o maior ou o menor, e retorna-os
+
+        if bool(self._items):
+            position = list(self._items)
+            row_min = position[0][0]
+            col_min = position[0][1]
+            row_max = position[0][0]
+            col_max = position[0][1]
+            for pos in position:
+                if pos[0] > row_max:
+                    row_max = pos[0]
+                if pos[0] < row_min:
+                    row_min = pos[0]
+                if pos[1] > col_max:
+                    col_max = pos[1]
+                if pos[1] < col_min:
+                    col_min = pos[1]
+            return (Position(row_min, col_min), Position(row_max, col_max))
+        return ()
         
     def row(self, row: int) -> Matrix:
-        pass
+        rowMatrix = MatrixSparseDOK(self.zero)
+        if isinstance(row, int) and row >= 0:
+            for key in self:
+                if(key[0] == row):
+                    rowMatrix[key] = self[key]
+            return rowMatrix
 
     def col(self, col: int) -> Matrix:
-       pass
+        colMatrix = MatrixSparseDOK(self.zero)
+        if isinstance(col, int) and col >= 0:
+            for key in self:
+                if(key[1] == col):
+                    colMatrix[key] = self[key]
+            return colMatrix
 
     def diagonal(self) -> Matrix:
-        pass
+        diagMatrix = MatrixSparseDOK(self.zero)
+        for key in self:
+            if(key[1] == key[0]):
+                diagMatrix[key] = self[key]
+        return diagMatrix
 
     @staticmethod
     def eye(size: int, unitary: float = 1.0, zero: float = 0.0) -> MatrixSparseDOK:

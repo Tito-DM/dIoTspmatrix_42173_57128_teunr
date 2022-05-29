@@ -10,10 +10,10 @@ class Position:
         self._pos = (row, col)
 
     def __str__(self):
-        return "(" + str(self._pos[0]) + ", " + str(self._pos[1]) + ")"
-
+        return str(self._pos)
+        
     def __getitem__(self, item: int) -> int:
-        if isinstance(item, int) and (item in (0, 1)):
+        if isinstance(item, int):
             return self._pos[item]
         else:
             raise ValueError('__getitem__() invalid arguments')

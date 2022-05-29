@@ -10,10 +10,8 @@ class MatrixSparse(Matrix):
     _zero = float
 
     def __init__(self, zero):
-        if type(zero) is float:
             self._zero = zero
-        else: raise ValueError("__init__() invalid arguments")
-
+            
     @property
     def zero(self) -> float:
         return self._zero
