@@ -40,7 +40,7 @@ class MatrixSparse(Matrix):
             row_max, col_max = positions[1]
             total_elem = (col_max - col_min + 1) * (row_max - row_min + 1)
             zero_null = total_elem - len(self._items)
-            
+
             return zero_null/float(total_elem)
         else:
             return 1.0
