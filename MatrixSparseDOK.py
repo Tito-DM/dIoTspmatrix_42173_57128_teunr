@@ -56,7 +56,7 @@ class MatrixSparseDOK(MatrixSparse):
         # positive (no negative places on matrices), if that position exists, returns it, otherwise returns zero
         if type (pos) is tuple and len(pos) == 2: 
             if type(pos[0]) is int and type(pos[1]) is int and pos[0] >= 0 and pos[1] >= 0:
-                if Position(pos[0], pos[1]) in self._items: 
+                if Position(pos[0], pos[1]) in self._items:
                     return self._items[Position(pos[0], pos[1])] 
                 else:
                     return self.zero 
@@ -79,8 +79,7 @@ class MatrixSparseDOK(MatrixSparse):
             if type(pos) is tuple and len(pos) == 2:
                 if type(pos[0]) is int and type(pos[1]) is int and pos[0] >= 0 and pos[1] >= 0:
                     if val != self.zero: 
-                        self._items[Position(pos[0], pos[1])] = val
-                    elif Position(pos[0], pos[1]) in self._items:
+                        self._items[Position(pos[0], pos[1])] = val 
                         del self._items[Position(pos[0], pos[1])]
                     else: raise ValueError("__setitem__() invalid arguments")
                 else: raise ValueError("__setitem__() invalid arguments")
