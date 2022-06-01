@@ -1,22 +1,22 @@
+
 from __future__ import annotations
 from Matrix import *
 from typing import Tuple
 
-
 position = Tuple[int, int]
-compressed = Tuple[position, float, Tuple[float], Tuple[int], Tuple[int]]
+#compressed = tuple[position, float, tuple[float, ...], tuple[int], ..., tuple[int, ...]]
+
 
 class MatrixSparse(Matrix):
     _zero = float
 
     def __init__(self, zero):
-        self._zero = zero
-
+            self._zero = zero
+            
     @property
     def zero(self) -> float:
         return self._zero
 
-    #TODO: Ver como funciona
     @zero.setter
     def zero(self, val: float):
         if isinstance(val,(int,float)):
@@ -24,14 +24,12 @@ class MatrixSparse(Matrix):
         for key in self:
             if(self[key] == self._zero):
                 del self._items[key]
-
-                
-
+            
     @abstractmethod
     def __len__(self) -> int:
         raise NotImplementedError
 
-    def sparsity(self) -> float:
+    def sparsity(self) -> float: #o sparsity só adiciona 2 posições, a primeira e a ultima, daí só precisar comprarar ambas
         pos = self.dim()
         if (self._items):
             min_r,min_c = pos[0]
