@@ -110,11 +110,17 @@ class MatrixSparseDOK(MatrixSparse):
         pass
 
 #    def _mul_number(self, other: [int, float]) -> Matrix:
-    def _mul_number(self, other) -> Matrix:
-        pass
+    def _mul_number(self, other:tuple[int,float]) -> Matrix:
+        if isinstance(other,(float,int)):
+            for key in self:
+                self[key] = self[key] * float(other)
+            return self
+        else:
+            raise ValueError("__mul__() invalid arguments")
 
     def _mul_matrix(self, other: MatrixSparse) -> MatrixSparse:
-        pass
+        if(isinstance(other, MatrixSparseDOK)):
+            pass
 
     def dim(self) -> tuple[Position, position]:
         #apanha os valores (posições) minimos e maximos do teste, verifica se cada um é o maior ou o menor, e retorna-os
