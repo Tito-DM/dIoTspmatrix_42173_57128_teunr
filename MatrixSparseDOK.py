@@ -184,7 +184,7 @@ class MatrixSparseDOK(MatrixSparse):
     def transpose(self) -> MatrixSparseDOK:
         self.transposeMatrix = MatrixSparseDOK(self.zero)
         for key in self:
-            self.transposeMatrix[key[1],key[0]] = self[key]
+            self.transposeMatrix[key[1],key[0]] = self[key[0],key[1]]
         return self.transposeMatrix
 
 
