@@ -96,8 +96,15 @@ class MatrixSparseDOK(MatrixSparse):
         return len(self._items)
 
 #    def _add_number(self, other: [int, float]) -> Matrix:
-    def _add_number(self, other) -> Matrix:
-        pass
+    def _add_number(self, pos: tuple[Position,position] ,val: tuple[int, float]) -> Matrix:
+        if isinstance(val,(float,int)) and isinstance(pos,(Position,tuple)) and isinstance(pos[0],int) and isinstance(pos[1],int) and pos[0] >= 0 and pos[1] >= 0:
+                if val != self.zero:
+                    self._items[pos] = val
+                elif pos in self._items:
+                    del self._items[pos]
+                raise ValueError(self.MSG_setter)
+        else:
+            raise ValueError(self.MSG_setter)
 
     def _add_matrix(self, other: MatrixSparse) -> MatrixSparse:
         pass
@@ -155,10 +162,25 @@ class MatrixSparseDOK(MatrixSparse):
 
     @staticmethod
     def eye(size: int, unitary: float = 1.0, zero: float = 0.0) -> MatrixSparseDOK:
-        pass
+        if isinstance(size,int) and size >=0  and isinstance(unitary,(int,float)) and isinstance(zero,(int,float)):
+            spmax  = MatrixSparseDOK(zero)
+            if size >= 0:
+                for x in range(size):
+                    for y in range(size):
+                        if x == y:
+                            spmax[(x,y)] = float(unitary)
+                        else:
+                            spmax[(x,y)] = zero
+                return spmax
+        else:
+            raise ValueError("eye() invalid parameters")
 
     def transpose(self) -> MatrixSparseDOK:
-        pass
+        self.transposeMatrix = MatrixSparseDOK(self.zero)
+        for key in self:
+            self.transposeMatrix[key[1],key[0]] = self[key]
+        return self.transposeMatrix
+
 
     def compress(self) -> compressed:
         pass
