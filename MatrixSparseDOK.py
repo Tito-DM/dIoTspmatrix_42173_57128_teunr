@@ -115,39 +115,38 @@ class MatrixSparseDOK(MatrixSparse):
         dim2_height = (dim2[1][0] - dim2[0][0]) + 1
 
         if((dim1_length == dim2_length) and (dim1_height == dim2_height) and self.zero == other.zero):
-            aux = MatrixSparseDOK(self.zero)
+             
+            spmatrix = MatrixSparseDOK(self.zero)
             for x in range(dim1_height):
                 for y in range(dim1_length):                 
                     if (self[x + dim1[0][0], y + dim1[0][1]] == self.zero):
                         pass
                     else:
-                        aux[x + dim1[0][0], y + dim1[0][1]] = self[x + dim1[0][0], y + dim1[0][1]]
+                        spmatrix[x + dim1[0][0], y + dim1[0][1]] = self[x + dim1[0][0], y + dim1[0][1]]
 
                     if (other[x + dim2[0][0], y + dim2[0][1]] == other.zero):
                         pass
-                    elif aux[x + dim2[0][0], y + dim2[0][1]] != other.zero:
-                        aux[x + dim2[0][0], y + dim2[0][1]] += other[x + dim2[0][0], y + dim2[0][1]]
+                    elif  spmatrix[x + dim2[0][0], y + dim2[0][1]] != other.zero:
+                         spmatrix[x + dim2[0][0], y + dim2[0][1]] += other[x + dim2[0][0], y + dim2[0][1]]
                     else:
-                        aux[x + dim2[0][0], y + dim2[0][1]] = other[x + dim2[0][0], y + dim2[0][1]]
+                         spmatrix[x + dim2[0][0], y + dim2[0][1]] = other[x + dim2[0][0], y + dim2[0][1]]
 
-            return aux
+            return  spmatrix
         else:
             raise ValueError("_add_matrix() incompatible matrices")
 
 #    def _mul_number(self, other: [int, float]) -> Matrix:
     def _mul_number(self, other:tuple[int,float]) -> Matrix:
         if isinstance(other, (int, float)):
-            aux = self.__copy__()
+            spmatrix_copy = self.__copy__()
             for key in self:
-                aux[key] *= other
-            return aux
+                spmatrix_copy[key] *= other
+            return spmatrix_copy
 
     def _mul_matrix(self, other: MatrixSparse) -> MatrixSparse:
         dim1 = self.dim()
         dim2 = other.dim()
         dim1_length = (dim1[1][1] - dim1[0][1]) + 1
-        dim1_height = (dim1[1][0] - dim1[0][0]) + 1
-        dim2_length = (dim2[1][1] - dim2[0][1]) + 1
         dim2_height = (dim2[1][0] - dim2[0][0]) + 1
         
         max_row_1,max_col_1 = dim1[1]
@@ -156,60 +155,38 @@ class MatrixSparseDOK(MatrixSparse):
         min_row_1,min_col_1 = dim1[0]
         min_row_2,min_col_2 = dim2[0]
 
-        max_row_considered = max_row_1 if max_row_1 > max_row_2 else max_row_2
-        max_col_considered = max_col_1 if max_col_1 > max_col_2 else max_col_2
-
-        min_row_considered = min_row_1 if min_row_1 < min_row_2 else min_row_2
-        min_col_considered = min_col_1 if min_col_1 < min_col_2 else min_col_2
-
-
-
-        
-
         if((dim1_length != dim2_height) or (self.zero != other.zero)):
-
             raise ValueError("_mul_matrix() incompatible matrices")
         else:
             result = MatrixSparseDOK(self.zero)
             for x in range(min_row_1, max_row_1 + 1):
-                print("Linha: ",x)
                 for y in range(min_col_2, max_col_2 + 1):
-                    print("Coluna: ", y)
                     aux = 0
                     for k in range(dim1_length):
                         if self[(x,k+min_col_1)] != self.zero and other[(k+min_row_2,y)] != other.zero:
-                            print(self[(x,k+min_col_1)],"*",other[(k+min_row_2,y)],"=",self[(x,k+min_col_1)]*other[(k+min_row_2,y)])
                             aux += self[(x,k+min_col_1)]*other[(k+min_row_2,y)]
-                            print("Total: ", aux)
-                            print()
-                            # result[x + dim1[0][0]][y + dim1[0][0]] += self[x + dim1[0][0], k + dim1[0][1]] * other[k + dim1[0][0], y + dim1[0][1]]
                         else:
-                            print(self[(x,k+min_col_1)],"*",other[(k+min_row_2,y)],"=",self[(x,k+min_col_1)]*other[(k+min_row_2,y)])
                             continue
                     result[(x,y)] = aux
-                    print(result)
-                print("Result intermédio: ")
         return result
 
     def dim(self) -> tuple[Position, position]:
-        #apanha os valores (posições) minimos e maximos do teste, verifica se cada um é o maior ou o menor, e retorna-os
-
-        if bool(self._items):
-            position = list(self._items)
-            row_min = position[0][0]
-            col_min = position[0][1]
-            row_max = position[0][0]
-            col_max = position[0][1]
-            for pos in position:
-                if pos[0] > row_max:
-                    row_max = pos[0]
-                if pos[0] < row_min:
-                    row_min = pos[0]
-                if pos[1] > col_max:
-                    col_max = pos[1]
-                if pos[1] < col_min:
-                    col_min = pos[1]
-            return (Position(row_min, col_min), Position(row_max, col_max))
+        if (self._items):
+            pos = list(self._items)
+            min_r = pos[0][0]
+            min_c = pos[0][1]
+            max_r = pos[0][0]
+            max_c = pos[0][1]
+            for p in pos:
+                if p[0] > max_r:
+                    max_r = p[0]
+                if p[0] < min_r:
+                    min_r = p[0]
+                if p[1] > max_c:
+                    max_c = p[1]
+                if p[1] < min_c:
+                    min_c = p[1]
+            return (Position(min_r, min_c), Position(max_r, max_c))
         return ()
         
     def row(self, row: int) -> Matrix:
@@ -259,22 +236,16 @@ class MatrixSparseDOK(MatrixSparse):
 
     def compress(self) -> compressed:
         if self.sparsity() >= 0.5:
-            
             values = []
             indexes = []
             rows = [] 
             non_null_elem = []
-            
-            
             upper_left, bottom_right = self.dim()
             min_row,min_col = upper_left
             max_row,max_col = bottom_right
-
-           
             total_elem_row = max_col-min_col + 1
             total_rows = max_row-min_row + 1
             offsets = [0]*total_rows
-      
             rows = []
             aux = []
             for x in range(min_row,max_row+1):
@@ -282,8 +253,6 @@ class MatrixSparseDOK(MatrixSparse):
                 for y in range(min_col,max_col+1):
                     aux.append(self[Position(x,y)])
                 rows.append(aux)
-         
-            
             for row_num,row in enumerate(rows):
                 count = 0
                 for elem in row:
@@ -293,88 +262,72 @@ class MatrixSparseDOK(MatrixSparse):
             for row in rows:
                 print(row)
             rows = list(map(lambda x:(x[0],x[2]),sorted(non_null_elem, key = lambda x: x[1],reverse = True)))
-            print("checkar se rows ficou bem organizado")
-            for row in rows:
-                print(row)
-            print()
-            
             for c,aux in enumerate(rows):
                 row,row_num = aux
                 offset_idx = 0
                 value_idx = 0
                 row_elem_idx = 0
                 done = False
-                if bool(values):
-                    print("nao está vazio")
+                if (values):
                     while row_elem_idx < total_elem_row: 
                         if value_idx + offset_idx < len(values): 
                             if (values[value_idx+offset_idx] == self.zero or row[row_elem_idx] == self.zero): 
                                 value_idx += 1
                                 row_elem_idx += 1
-                                print("shift")
                             else:
-                                print("add offset")
                                 value_idx = 0
                                 row_elem_idx = 0
                                 offset_idx += 1
-                                print(offset_idx)
                         else:
                             break
                     for i,elem in enumerate(row):
                         if i + offset_idx < len(values):
-                            print("adicionar")
-                            indexes[i+offset_idx] = row_num if elem != self.zero else indexes[i+offset_idx] # tem que se -1 para nao se confundir com 0
+                            indexes[i+offset_idx] = row_num if elem != self.zero else indexes[i+offset_idx]
                             values[i+offset_idx] = elem if elem != self.zero else values[i+offset_idx]   
                         else:
                             indexes.append(row_num if elem != self.zero else -1)
                             values.append(elem)
                         offsets[row_num-min_row] = offset_idx                           
                 else:
-                    print("está vazio: ")
-                    # definir vetores value e indexes com 
                     values = row
-                    indexes = list(map(lambda x: row_num if x != self.zero else -1,row)) # tem que se -1 para nao se confundir com 0
+                    indexes = list(map(lambda x: row_num if x != self.zero else -1,row)) 
                     offsets[0] = offset_idx
-                    print("Novo loop: ", row_num)
-                    print("values: ",values)
-                    print("indexes: ",indexes)
-                    print("offests: ",offsets)
-                    print("row: ",row)
-                    print()
             return ((min_row,min_col), self.zero, tuple(values), tuple(indexes), tuple(offsets))
         raise ValueError("compress() dense matrix")
+    
 
     @staticmethod
     def doi(compressed_vector: compressed, pos: Position) -> float:
         if isinstance(compressed_vector,tuple) and isinstance(pos,Position):
-            upper_left, zero, values, indices, offsets = compressed_vector
-            if( isinstance(upper_left,tuple) and len(upper_left) == 2 and isinstance(zero,float) and isinstance(values,tuple) and isinstance(indices,tuple) and isinstance(offsets,tuple)):
-                min_row, min_col = upper_left
-                return values[pos[1] - min_col + offsets[pos[0]-min_row]] if indices[pos[1] - min_col + offsets[pos[0]-min_row]] == pos[0] else zero
+            up_left, zero, val, index, offsets = compressed_vector
+            if( isinstance(up_left,tuple) and
+             len(up_left) == 2 and isinstance(zero,float) and
+              isinstance(val,tuple) and isinstance(index,tuple) and 
+              isinstance(offsets,tuple)):
+                min_row, min_col = up_left
+                if index[pos[1] - min_col + offsets[pos[0]-min_row]] == pos[0]:
+                    return val[pos[1] - min_col + offsets[pos[0]-min_row]] 
+                else:
+                    return zero
         raise ValueError("doi() invalid parameters")
 
     @staticmethod
     def decompress(compressed_vector: compressed) -> MatrixSparse:
         if isinstance(compressed_vector,tuple):
-            upper_left, zero, values, indices, offsets = compressed_vector
-            if( isinstance(upper_left,tuple) and len(upper_left) == 2 and 
+            up_left, zero, values, index, offsets = compressed_vector
+            if( isinstance(up_left,tuple) and 
                 isinstance(zero,float) and
                 isinstance(values,tuple) and 
-                isinstance(indices,tuple) and 
+                isinstance(index,tuple) and 
                 isinstance(offsets,tuple)):
 
-                min_row,min_col = upper_left
+                min_row,min_col = up_left
                 spmax = MatrixSparseDOK(zero)
                 x = 0
                 for i,v in enumerate(values):
-                    if(indices[i] != -1):
-                        print("values: ",v)
-                        print("indice",indices[i])
-                        print("offset: ",offsets[indices[i] - min_row])
-                        print()
-                        spmax[Position(indices[i],i + min_col - offsets[indices[i] - min_row])] = v
+                    if(index[i] != -1):
+                        spmax[Position(index[i],i + min_col - offsets[index[i] - min_row])] = v
                     else:
                         x += 1
-                            
                 return spmax
             raise ValueError("decompress() invalid parameters")
