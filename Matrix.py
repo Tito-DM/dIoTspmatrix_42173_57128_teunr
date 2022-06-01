@@ -28,15 +28,15 @@ class Matrix(ABC):
     def __eq__(self, other):
         raise NotImplementedError
 
-    def __add__(self, other):
-        if isinstance(other, (int, float)):
-            return self._add_number(other)
-        if isinstance(other, Matrix):
-            return self._add_matrix(other)
+    def __add__(self, val):
+        if isinstance(val, (int, float)):
+            return self._add_number(val)
+        if isinstance(val, Matrix):
+            return self._add_matrix(val)
         raise ValueError('_add__ invalid argument')
 
     @abstractmethod
-    def _add_number(self, other: [int, float]) -> Matrix:
+    def _add_number(self, val: tuple[int, float]) -> Matrix:
         raise NotImplementedError
 
     @abstractmethod
@@ -51,7 +51,7 @@ class Matrix(ABC):
         raise ValueError('__mul__ invalid argument')
 
     @abstractmethod
-    def _mul_number(self, other: [int, float]) -> Matrix:
+    def _mul_number(self, other: tuple[int, float]) -> Matrix:
         raise NotImplementedError
 
     @abstractmethod
