@@ -18,6 +18,7 @@ spmatrix = Dict[Position, float]
 
 class MatrixSparseDOK(MatrixSparse):
     _items = spmatrix
+    MSG_setter = "__setitem__() invalid arguments"
 
     def __init__(self, zero: float = 0.0):
         if not isinstance(zero, (int, float)):
@@ -75,23 +76,21 @@ class MatrixSparseDOK(MatrixSparse):
         #positive (no negative places on matrices), and val is different than self._zero (matrix zero), sets the value
         #otherwise if pos is a Position and val is different than self._zero (matrix zero), sets the value
 
-        if isinstance(pos, (tuple,Position)) and isinstance(val, (int, float)):
-            if type(pos) is tuple and len(pos) == 2:
-                if type(pos[0]) is int and type(pos[1]) is int and pos[0] >= 0 and pos[1] >= 0:
-                    if val != self.zero: 
-                        self._items[Position(pos[0], pos[1])] = val 
-                        del self._items[Position(pos[0], pos[1])]
-                    else: raise ValueError("__setitem__() invalid arguments")
-                else: raise ValueError("__setitem__() invalid arguments")
-            elif type (pos) is Position:
+        if isinstance(val,(float,int)) and isinstance(pos,(Position,tuple)):
+            if isinstance(pos, Position):
                 if val != self.zero:
                     self._items[pos] = val
                 elif pos in self._items:
                     del self._items[pos]
-                else: raise ValueError("__setitem__() invalid arguments")
-            else: raise ValueError("__setitem__() invalid arguments")
-        else: raise ValueError("__setitem__() invalid arguments")
-        
+            elif isinstance(pos, tuple) and len(pos) == 2 and isinstance(pos[0],int) and isinstance(pos[1],int) and pos[0] >= 0 and pos[1] >= 0:
+                if val != self.zero:
+                    self._items[Position(pos[0],pos[1])] = val
+                elif Position(pos[0],pos[1]) in self._items:
+                    del self._items[Position(pos[0],pos[1])]
+            else:
+                raise ValueError(self.MSG_setter)
+        else:
+            raise ValueError(self.MSG_setter)
  
     def __len__(self) -> int:
         return len(self._items)
