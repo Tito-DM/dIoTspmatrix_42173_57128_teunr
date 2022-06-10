@@ -135,10 +135,10 @@ class MatrixSparseDOK(MatrixSparse):
 #    def _mul_number(self, other: [int, float]) -> Matrix:
     def _mul_number(self, other:tuple[int,float]) -> Matrix:
         if isinstance(other, (int, float)):
-            spmatrix_copy = self.__copy__()
+            newMatrix = self.__copy__()
             for key in self:
-                spmatrix_copy[key] *= other
-            return spmatrix_copy
+                newMatrix[key] *= other
+            return newMatrix
 
     def _mul_matrix(self, other: MatrixSparse) -> MatrixSparse:
         dim1 = self.dim()
