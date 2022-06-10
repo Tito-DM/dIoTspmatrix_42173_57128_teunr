@@ -95,23 +95,13 @@ class MatrixSparseDOK(MatrixSparse):
     def __len__(self) -> int:
         return len(self._items)
 
-#    def _add_number(self, other: [int, float]) -> Matrix:
-    # def _add_number(self, pos: tuple[Position,position], val: tuple[int, float]) -> Matrix:
-    #     if isinstance(val,(float,int)) and isinstance(pos,(Position,tuple)) and isinstance(pos[0],int) and isinstance(pos[1],int) and pos[0] >= 0 and pos[1] >= 0:
-    #             if val != self.zero:
-    #                 self._items[pos] = val
-    #             elif pos in self._items:
-    #                 del self._items[pos]
-    #             raise ValueError(self.MSG_setter)
-    #     else:
-    #         raise ValueError(self.MSG_setter)
-
     def _add_number(self, other: [int, float]) -> Matrix:
+        #creates a copy of the received matrix and adds "other" to its non-null values, then returns it
         if isinstance(other, (int, float)):
-            aux = self.__copy__()
+            newMatrix = self.__copy__()
             for key in self:
-                aux[key] += other
-            return aux
+                newMatrix[key] += other
+            return newMatrix
 
     def _add_matrix(self, other: MatrixSparse) -> MatrixSparse:
         dim1 = self.dim()
