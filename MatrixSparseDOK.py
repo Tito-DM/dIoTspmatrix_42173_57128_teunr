@@ -95,7 +95,7 @@ class MatrixSparseDOK(MatrixSparse):
     def __len__(self) -> int:
         return len(self._items)
 
-    def _add_number(self, other: [int, float]) -> Matrix:
+    def _add_number(self, other: tuple[int, float]) -> Matrix:
         #creates a copy of the received matrix and adds "other" to its non-null values, then returns it
         if isinstance(other, (int, float)):
             newMatrix = self.__copy__()
@@ -132,8 +132,8 @@ class MatrixSparseDOK(MatrixSparse):
         else:
             raise ValueError("_add_matrix() incompatible matrices")
 
-#    def _mul_number(self, other: [int, float]) -> Matrix:
-    def _mul_number(self, other:tuple[int,float]) -> Matrix:
+    def _mul_number(self, other: tuple[int,float]) -> Matrix:
+        #creates a copy of the received matrix and multiplies "other" to its non-null values, then returns it
         if isinstance(other, (int, float)):
             newMatrix = self.__copy__()
             for key in self:
