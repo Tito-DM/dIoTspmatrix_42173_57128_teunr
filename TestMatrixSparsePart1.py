@@ -211,15 +211,15 @@ class TestMatrixSparseGetItem(unittest.TestCase):
         m = MatrixSparseImplementation()
         try:
             m.__getitem__((1, 2, 3))
-            self.assertTrue(True, "Failed to Raise Exception")
+            self.assertTrue(False, "Failed to Raise Exception")
         except ValueError as error:
             self.assertEqual(str(error), '__getitem__() invalid arguments')
 
     def test___getitem___pos_zero_tuple(self):
         m = MatrixSparseImplementation()
         try:
-            m.__getitem__((1, 2, 3))
-            self.assertTrue(True, "Failed to Raise Exception")
+            m.__getitem__((0, ))
+            self.assertTrue(False, "Failed to Raise Exception")
         except ValueError as error:
             self.assertEqual(str(error), '__getitem__() invalid arguments')
 
