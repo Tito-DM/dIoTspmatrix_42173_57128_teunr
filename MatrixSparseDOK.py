@@ -41,6 +41,7 @@ class MatrixSparseDOK(MatrixSparse):
         self.actual = 0
         self.max = len(self._items)
         self.iterMatrix = sorted(self._items,key=lambda x: x[0]) #sort by row
+        
         #self.iterMatrix = sorted(list(self._items))
         return self
 
