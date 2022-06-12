@@ -33,18 +33,15 @@ class MatrixSparseDOK(MatrixSparse):
             return self._items == other._items
 
     def __iter__(self):
-        #
-        self.actual = 0
-        self.max = len(self._items)
-        self.iterMatrix = sorted(self._items,key=lambda x: x[self.actual]) #sort by row
-        
-        #self.iterMatrix = sorted(list(self._items))
+        self.actual = 0 #new parameter indicating the key being worked on
+        self.max = len(self._items) #new parameter indicating the number of keys
+        self.iterMatrix = sorted(self._items,key=lambda x: x[0]) #new parameter with a list of the items sorted by row
         return self
 
     def __next__(self):
-        if(self.actual < self.max):
-            key = self.iterMatrix[self.actual]
-            self.actual += 1
+        if(self.actual < self.max): 
+            key = self.iterMatrix[self.actual] #the key being worked is the actual, using the sorted matrix list
+            self.actual += 1 #increments the key being worked on for later
             return key
         else:
             raise StopIteration
