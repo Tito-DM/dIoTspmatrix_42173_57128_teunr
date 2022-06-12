@@ -180,17 +180,6 @@ class MatrixSparseDOK(MatrixSparse):
             max_r = pos[0][0] #max row
             max_c = pos[0][1] #max column
             for p in pos:
-<<<<<<< HEAD
-                if p[0] > max_r:
-                    max_r = p[0]
-                if p[0] < min_r:
-                    min_r = p[0]
-                if p[1] > max_c:
-                    max_c = p[1]
-                if p[1] < min_c:
-                    min_c = p[1]
-            return (Position(min_r, min_c), Position(max_r, max_c)) 
-=======
                 if p[0] > max_r: #if the row is greater than the current max row
                     max_r = p[0] #set the max row to the current row
                 if p[0] < min_r: #if the row is smaller than the current min row
@@ -199,9 +188,8 @@ class MatrixSparseDOK(MatrixSparse):
                     max_c = p[1] #set the max column to the current column
                 if p[1] < min_c: #if the column is smaller than the current min column
                     min_c = p[1] #set the min column to the current column
-            return (Position(min_r, min_c), Position(max_r, max_c)) #return the min and max positions
->>>>>>> 8b9e91b45b29ce275ecdd223039a5b71d27685ee
-        return ()
+            return (Position(min_r, min_c), Position(max_r, max_c)) #returns the minimum and maximum column and row values
+        return () #returns empty
         
     def row(self, row: int) -> Matrix:
         #create an instance of MatrixSparseDOK 
