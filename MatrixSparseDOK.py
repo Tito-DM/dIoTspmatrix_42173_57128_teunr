@@ -92,14 +92,9 @@ class MatrixSparseDOK(MatrixSparse):
         else:
             raise ValueError(self.MSG_setter)
  
-<<<<<<< HEAD
-    def __len__(self) -> int: 
+    def __len__(self) -> int:
         return len(self._items) #returns the number of keys
 
-=======
-    def __len__(self) -> int:
-        return len(self._items)
->>>>>>> 8b9e91b45b29ce275ecdd223039a5b71d27685ee
     def _add_number(self, other: tuple[int, float]) -> Matrix:
         #creates a copy of the received matrix and adds "other" to its non-null values, then returns it
         if isinstance(other, (int, float)):
