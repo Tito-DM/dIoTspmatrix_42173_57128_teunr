@@ -33,8 +33,6 @@ class MatrixSparseDOK(MatrixSparse):
         self.actual = 0
         self.max = len(self._items)
         self.iterMatrix = sorted(self._items,key=lambda x: x[self.actual]) #sort by row
-        
-        #self.iterMatrix = sorted(list(self._items))
         return self
 
     def __next__(self):
@@ -87,7 +85,6 @@ class MatrixSparseDOK(MatrixSparse):
  
     def __len__(self) -> int:
         return len(self._items)
-
     def _add_number(self, other: tuple[int, float]) -> Matrix:
         #creates a copy of the received matrix and adds "other" to its non-null values, then returns it
         if isinstance(other, (int, float)):
@@ -190,19 +187,19 @@ class MatrixSparseDOK(MatrixSparse):
 
     def col(self, col: int) -> Matrix:
         #create an instance of MatrixSparseDOK 
-        colMatrix = MatrixSparseDOK(self.zero) #check if the received col is an integer and if it is positive
+        spmatrix_col = MatrixSparseDOK(self.zero) #check if the received col is an integer and if it is positive
         if isinstance(col, int) and col >= 0:
             for key in self:
                 if(key[1] == col): #check if the received row is the same as the col of the key
-                    colMatrix[key] = self[key]  #if so, add the value of the key to the new matri
-            return colMatrix
+                    spmatrix_col[key] = self[key]  #if so, add the value of the key to the new matri
+            return spmatrix_col
 
     def diagonal(self) -> Matrix:
-        diagMatrix = MatrixSparseDOK(self.zero)
+        spmatrix_diagonal = MatrixSparseDOK(self.zero)
         for key in self:
             if(key[1] == key[0]):
-                diagMatrix[key] = self[key]
-        return diagMatrix
+                spmatrix_diagonal[key] = self[key]
+        return spmatrix_diagonal
 
     @staticmethod
     def eye(size: int, unitary: float = 1.0, zero: float = 0.0) -> MatrixSparseDOK:
@@ -230,7 +227,7 @@ class MatrixSparseDOK(MatrixSparse):
 
 
     def compress(self) -> compressed:
-        if self.sparsity() >= 0.5:
+        if self.sparsity() >= 0.5: 
             values = []
             indexes = []
             rows = [] 
@@ -243,25 +240,27 @@ class MatrixSparseDOK(MatrixSparse):
             offsets = [0]*total_rows
             rows = []
             aux = []
+
+
             for x in range(min_row,max_row+1):
-                aux = []
+                #populate the rows list with the number of elements in each row
                 for y in range(min_col,max_col+1):
                     aux.append(self[Position(x,y)])
                 rows.append(aux)
+            #populate tge non_null_elem list with the non null elements of the matrix
             for row_num,row in enumerate(rows):
                 count = 0
                 for elem in row:
-                    if elem != self.zero:
+                    if elem != self.zero: #check if the element is not zero element
                         count += 1
-                non_null_elem.append((row,count,row_num+min_row))
+                non_null_elem.append((row,count,row_num+min_row)) #add the row, the number of non-null elements and the row number to the list
           
-            rows = list(map(lambda x:(x[0],x[2]),sorted(non_null_elem, key = lambda x: x[1],reverse = True)))
-            for c,aux in enumerate(rows):
+            rows = list(map(lambda x:(x[0],x[2]),sorted(non_null_elem, key = lambda x: x[1],reverse = True))) #sort the rows by the number of non-null elements
+            for c,aux in enumerate(rows): 
                 row,row_num = aux
                 offset_idx = 0
                 value_idx = 0
                 row_elem_idx = 0
-                done = False
                 if (values):
                     while row_elem_idx < total_elem_row: 
                         if value_idx + offset_idx < len(values): 
