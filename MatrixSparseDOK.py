@@ -47,7 +47,7 @@ class MatrixSparseDOK(MatrixSparse):
             raise StopIteration #stops the iteration
     
     def __getitem__(self, pos: tuple[Position, position]) -> float:
-        #if pos is a tuple(position) with 2 values, and both values are int, and both values zero or 
+        #if pos is a tuple(position) with 2 values_container, and both values_container are int, and both values_container zero or 
         # positive (no negative places on matrices), if that position exists, returns it, otherwise returns zero
         if type (pos) is tuple and len(pos) == 2: 
             if type(pos[0]) is int and type(pos[1]) is int and pos[0] >= 0 and pos[1] >= 0:
@@ -66,7 +66,7 @@ class MatrixSparseDOK(MatrixSparse):
 
     def __setitem__(self, pos: tuple[Position, position], val: tuple[int, float]):
         #if pos is a tuple(position) or a Position and val is and int or a float, 
-        #and in the case pos is a tuple(position) with 2 values, and both values are int, and both values zero or
+        #and in the case pos is a tuple(position) with 2 values_container, and both values_container are int, and both values_container zero or
         #positive (no negative places on matrices), and val is different than self._zero (matrix zero), sets the value
         #otherwise if pos is a Position and val is different than self._zero (matrix zero), sets the value
 
@@ -90,7 +90,7 @@ class MatrixSparseDOK(MatrixSparse):
         return len(self._items) #returns the number of keys
 
     def _add_number(self, other: tuple[int, float]) -> Matrix:
-        #creates a copy of the received matrix and adds "other" to its non-null values, then returns it
+        #creates a copy of the received matrix and adds "other" to its non-null values_container, then returns it
         if isinstance(other, (int, float)):
             newMatrix = self.__copy__()
             for key in self:
@@ -98,36 +98,36 @@ class MatrixSparseDOK(MatrixSparse):
             return newMatrix
 
     def _add_matrix(self, other: MatrixSparse) -> MatrixSparse:
-        dim1 = self.dim()
-        dim2 = other.dim()
-        dim1_length = (dim1[1][1] - dim1[0][1]) + 1
-        dim1_height = (dim1[1][0] - dim1[0][0]) + 1
-        dim2_length = (dim2[1][1] - dim2[0][1]) + 1
-        dim2_height = (dim2[1][0] - dim2[0][0]) + 1
+        dim_x = self.dim()
+        dim_y = other.dim()
+        dim1_size = (dim_x[1][1] - dim_x[0][1]) + 1
+        dim1_height = (dim_x[1][0] - dim_x[0][0]) + 1
+        dim2_size = (dim_y[1][1] - dim_y[0][1]) + 1
+        dim2_height = (dim_y[1][0] - dim_y[0][0]) + 1
 
-        if((dim1_length == dim2_length) and (dim1_height == dim2_height) and self.zero == other.zero):
+        if((dim1_size == dim2_size) and (dim1_height == dim2_height) and self.zero == other.zero):
              
             spmatrix = MatrixSparseDOK(self.zero)
             for x in range(dim1_height):
-                for y in range(dim1_length):                 
-                    if (self[x + dim1[0][0], y + dim1[0][1]] == self.zero):
+                for y in range(dim1_size):                 
+                    if (self[x + dim_x[0][0], y + dim_x[0][1]] == self.zero):
                         pass
                     else:
-                        spmatrix[x + dim1[0][0], y + dim1[0][1]] = self[x + dim1[0][0], y + dim1[0][1]]
+                        spmatrix[x + dim_x[0][0], y + dim_x[0][1]] = self[x + dim_x[0][0], y + dim_x[0][1]]
 
-                    if (other[x + dim2[0][0], y + dim2[0][1]] == other.zero):
+                    if (other[x + dim_y[0][0], y + dim_y[0][1]] == other.zero):
                         pass
-                    elif  spmatrix[x + dim2[0][0], y + dim2[0][1]] != other.zero:
-                         spmatrix[x + dim2[0][0], y + dim2[0][1]] += other[x + dim2[0][0], y + dim2[0][1]]
+                    elif  spmatrix[x + dim_y[0][0], y + dim_y[0][1]] != other.zero:
+                         spmatrix[x + dim_y[0][0], y + dim_y[0][1]] += other[x + dim_y[0][0], y + dim_y[0][1]]
                     else:
-                         spmatrix[x + dim2[0][0], y + dim2[0][1]] = other[x + dim2[0][0], y + dim2[0][1]]
+                         spmatrix[x + dim_y[0][0], y + dim_y[0][1]] = other[x + dim_y[0][0], y + dim_y[0][1]]
 
             return  spmatrix
         else:
             raise ValueError("_add_matrix() incompatible matrices")
 
     def _mul_number(self, other: tuple[int,float]) -> Matrix:
-        #creates a copy of the received matrix and multiplies "other" to its non-null values, then returns it
+        #creates a copy of the received matrix and multiplies "other" to its non-null values_container, then returns it
         if isinstance(other, (int, float)):
             newMatrix = self.__copy__()
             for key in self:
@@ -135,30 +135,30 @@ class MatrixSparseDOK(MatrixSparse):
             return newMatrix
 
     def _mul_matrix(self, other: MatrixSparse) -> MatrixSparse:
-        dim1 = self.dim()
-        dim2 = other.dim()
-        dim1_length = (dim1[1][1] - dim1[0][1]) + 1
-        dim2_height = (dim2[1][0] - dim2[0][0]) + 1
+        dim_x = self.dim()
+        dim_y = other.dim()
+        dim1_size = (dim_x[1][1] - dim_x[0][1]) + 1
+        dim2_height = (dim_y[1][0] - dim_y[0][0]) + 1
         
-        max_row_1,max_col_1 = dim1[1]
-        max_row_2,max_col_2 = dim2[1]
+        max_row_1,max_col_1 = dim_x[1]
+        max_row_2,max_col_2 = dim_y[1]
 
-        min_row_1,min_col_1 = dim1[0]
-        min_row_2,min_col_2 = dim2[0]
+        min_row_1,min_col_1 = dim_x[0]
+        min_row_2,min_col_2 = dim_y[0]
 
-        if((dim1_length != dim2_height) or (self.zero != other.zero)):
+        if((dim1_size != dim2_height) or (self.zero != other.zero)):
             raise ValueError("_mul_matrix() incompatible matrices")
         else:
             result = MatrixSparseDOK(self.zero)
             for x in range(min_row_1, max_row_1 + 1):
                 for y in range(min_col_2, max_col_2 + 1):
-                    aux = 0
-                    for k in range(dim1_length):
+                    spmax = 0
+                    for k in range(dim1_size):
                         if self[(x,k+min_col_1)] != self.zero and other[(k+min_row_2,y)] != other.zero:
-                            aux += self[(x,k+min_col_1)]*other[(k+min_row_2,y)]
+                            spmax += self[(x,k+min_col_1)]*other[(k+min_row_2,y)]
                         else:
                             continue
-                    result[(x,y)] = aux
+                    result[(x,y)] = spmax
         return result
 
     def dim(self) -> tuple[Position, position]:
@@ -177,7 +177,7 @@ class MatrixSparseDOK(MatrixSparse):
                     max_c = p[1] #set the max column to the current column
                 if p[1] < min_c: #if the column is smaller than the current min column
                     min_c = p[1] #set the min column to the current column
-            return (Position(min_r, min_c), Position(max_r, max_c)) #returns the minimum and maximum column and row values
+            return (Position(min_r, min_c), Position(max_r, max_c)) #returns the minimum and maximum column and row values_container
         return () #returns empty
         
     def row(self, row: int) -> Matrix:
@@ -207,9 +207,9 @@ class MatrixSparseDOK(MatrixSparse):
 
     @staticmethod
     def eye(size: int, unitary: float = 1.0, zero: float = 0.0) -> MatrixSparseDOK:
-        #check size,zeros and unitary values if are valid
+        #check size,zeros and unitary values_container if are valid
         if isinstance(size,int) and size >=0  and isinstance(unitary,(int,float)) and isinstance(zero,(int,float)):
-            #create a matrix with the received values
+            #create a matrix with the received values_container
             spmax  = MatrixSparseDOK(zero)
             if size >= 0:
                 for x in range(size):
@@ -231,67 +231,66 @@ class MatrixSparseDOK(MatrixSparse):
 
 
     def compress(self) -> compressed:
-        if self.sparsity() >= 0.5:
-            values = []
-            indexes = []
-            rows = [] 
-            non_null_elem = []
-            upper_left, bottom_right = self.dim() #get the upper left and bottom right positions of the matrix
-            min_row,min_col = upper_left
-            max_row,max_col = bottom_right
-            total_elem_row = max_col-min_col + 1
-            total_rows = max_row-min_row + 1
-            offsets = [0]*total_rows
-            rows = []
-            aux = []
+        values_container = []
+        indexes_container = []
+        non_null_container = []
+        upper_left, bottom_right = self.dim() #get the upper left and bottom right positions of the matrix
+        min_row,min_col = upper_left
+        max_row,max_col = bottom_right
+        total_elem_row = max_col-min_col + 1
+        total_rows = max_row-min_row + 1
+        offsets = [0]*total_rows #create a list with the offsets for each row
+        rows_container  = []
+        spmax = []
 
+        #check if sparsity is greater than 0.5
+        if self.sparsity() >= 0.5:
             for x in range(min_row,max_row+1):
-                #populate the rows list with the number of elements in each row
-                aux = []
+                #populate the rows_container list with the number of elements in each row
+                spmax = []
                 for y in range(min_col,max_col+1):
-                    aux.append(self[Position(x,y)])
-                rows.append(aux)
-                #populate the non_null_elem list with the non null elements of the matrix
-            for row_num,row in enumerate(rows):
+                    spmax.append(self[Position(x,y)])
+                rows_container.append(spmax)
+                #populate the non_null_container list with the non null elements of the matrix
+            for row_num,row in enumerate(rows_container):
                 count = 0
                 for elem in row:
                     if elem != self.zero: #check if the element is not zero element
                         count += 1
-                non_null_elem.append((row,count,row_num+min_row)) #add the row, the number of non-null elements and the row number to the list
+                non_null_container.append((row,count,row_num+min_row)) #add the row, the number of non-null elements and the row number to the list
           
-            rows = list(map(lambda x:(x[0],x[2]),sorted(non_null_elem, key = lambda x: x[1],reverse = True)))
-            #sort the rows by the number of non-null elements
-            for c,aux in enumerate(rows):
-                row,row_num = aux
-                offset_idx = 0
-                value_idx = 0
-                row_elem_idx = 0
-                done = False
-                if (values):
-                    while row_elem_idx < total_elem_row: #check if the row is not empty
-                        if value_idx + offset_idx < len(values): #check if the value index is not out of range
-                            if (values[value_idx+offset_idx] == self.zero or row[row_elem_idx] == self.zero): 
-                                value_idx += 1
-                                row_elem_idx += 1
+            rows_container = list(map(lambda x:(x[0],x[2]),sorted(non_null_container, key = lambda x: x[1],reverse = True)))
+            #sort the rows_container by the number of non-null elements
+            for c,b in enumerate(rows_container):
+                row,row_num = b
+                offset_index = 0
+                value_index = 0
+                row__index = 0
+                if (values_container):
+                    while row__index < total_elem_row: #check if the row is not empty
+                        if value_index + offset_index < len(values_container): #check if the value index is not out of range
+                            if (values_container[value_index+offset_index] == self.zero or row[row__index] == self.zero): 
+                                value_index += 1
+                                row__index += 1
                             else:
-                                value_idx = 0
-                                row_elem_idx = 0
-                                offset_idx += 1
+                                value_index = 0
+                                row__index = 0
+                                offset_index += 1
                         else:
                             break
                     for i,elem in enumerate(row):
-                        if i + offset_idx < len(values): #check if the value index is not out of range
-                            indexes[i+offset_idx] = row_num if elem != self.zero else indexes[i+offset_idx] #if the element is not zero, set the row number
-                            values[i+offset_idx] = elem if elem != self.zero else values[i+offset_idx] #if the element is not zero, set the value
+                        if i + offset_index < len(values_container): #check if the value index is not out of range
+                            indexes_container[i+offset_index] = row_num if elem != self.zero else indexes_container[i+offset_index] #if the element is not zero, set the row number
+                            values_container[i+offset_index] = elem if elem != self.zero else values_container[i+offset_index] #if the element is not zero, set the value
                         else:
-                            indexes.append(row_num if elem != self.zero else -1)
-                            values.append(elem)
-                        offsets[row_num-min_row] = offset_idx                           
+                            indexes_container.append(row_num if elem != self.zero else -1)
+                            values_container.append(elem)
+                        offsets[row_num-min_row] = offset_index                           
                 else:
-                    values = row
-                    indexes = list(map(lambda x: row_num if x != self.zero else -1,row)) 
-                    offsets[0] = offset_idx
-            return ((min_row,min_col), self.zero, tuple(values), tuple(indexes), tuple(offsets))
+                    values_container = row
+                    indexes_container = list(map(lambda x: row_num if x != self.zero else -1,row)) 
+                    offsets[0] = offset_index
+            return ((min_row,min_col), self.zero, tuple(values_container), tuple(indexes_container), tuple(offsets))
         raise ValueError("compress() dense matrix")
     
 
@@ -299,7 +298,7 @@ class MatrixSparseDOK(MatrixSparse):
     def doi(compressed_vector: compressed, pos: Position) -> float:
         #check if compressed_vector is a compressed vector and pos is a Position
         if isinstance(compressed_vector,tuple) and isinstance(pos,Position):
-            up_left, zero, val, index, offsets = compressed_vector #get the values of the compressed vector
+            up_left, zero, val, index, offsets = compressed_vector #get the values_container of the compressed vector
             if( isinstance(up_left,tuple) and
              len(up_left) == 2 and isinstance(zero,float) and
               isinstance(val,tuple) and isinstance(index,tuple) and 
@@ -313,22 +312,23 @@ class MatrixSparseDOK(MatrixSparse):
 
     @staticmethod
     def decompress(compressed_vector: compressed) -> MatrixSparse:
+        count = 0
         #check if compressed_vector is a compressed vector
         if isinstance(compressed_vector,tuple):
-            up_left, zero, values, index, offsets = compressed_vector #get the values of the compressed vector
+            up_left, zero, values_container, index, offsets = compressed_vector #get the values_container of the compressed vector
             if( isinstance(up_left,tuple) and 
                 isinstance(zero,float) and
-                isinstance(values,tuple) and 
+                isinstance(values_container,tuple) and 
                 isinstance(index,tuple) and 
                 isinstance(offsets,tuple)):
 
                 min_row,min_col = up_left #get the upper left position of the compressed vector
                 spmax = MatrixSparseDOK(zero) #create a new matrix with the same zero value
-                x = 0
-                for i,v in enumerate(values):
+               
+                for i,v in enumerate(values_container):
                     if(index[i] != -1):
                         spmax[Position(index[i],i + min_col - offsets[index[i] - min_row])] = v #set the value of the position
                     else:
-                        x += 1 #count the number of zero elements
+                        count += 1 #count the number of zero elements
                 return spmax
             raise ValueError("decompress() invalid parameters")
