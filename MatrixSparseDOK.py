@@ -140,10 +140,10 @@ class MatrixSparseDOK(MatrixSparse):
             return newMatrix
 
     def _mul_matrix(self, other: MatrixSparse) -> MatrixSparse:
-        dim1 = self.dim()
-        dim2 = other.dim()
-        dim1_length = (dim1[1][1] - dim1[0][1]) + 1
-        dim2_height = (dim2[1][0] - dim2[0][0]) + 1
+        dim1 = self.dim() 
+        dim2 = other.dim() 
+        dim1_length = (dim1[1][1] - dim1[0][1]) + 1 
+        dim2_height = (dim2[1][0] - dim2[0][0]) + 1 
         
         max_row_1,max_col_1 = dim1[1]
         max_row_2,max_col_2 = dim2[1]
@@ -238,43 +238,42 @@ class MatrixSparseDOK(MatrixSparse):
     def compress(self) -> compressed:
         if self.sparsity() >= 0.5: 
             #set variables
-            values = []
-            indexes = []
-            rows = [] 
-            non_null_elem = []
-            upper_left, bottom_right = self.dim() #get the upper left and bottom right positions of the matrix
-            min_row,min_col = upper_left
-            max_row,max_col = bottom_right
+            values_container = []
+            indexes_container = []
+            rows_container = [] 
+            non_null_container = []
+            upper_l, bottom_r = self.dim() #get the upper left and bottom right positions of the matrix
+            min_row,min_col = upper_l
+            max_row,max_col = bottom_r
             total_elem_row = max_col-min_col + 1
             total_rows = max_row-min_row + 1
             offsets = [0]*total_rows
-            rows = []
-            aux = []
+            spmax = []
 
 
             for x in range(min_row,max_row+1):
                 #populate the rows list with the number of elements in each row
                 for y in range(min_col,max_col+1):
-                    aux.append(self[Position(x,y)])
-                rows.append(aux)
+                    spmax.append(self[Position(x,y)])
+                rows_container.append(spmax)
             #populate tge non_null_elem list with the non null elements of the matrix
-            for row_num,row in enumerate(rows):
+            for row_num,row in enumerate(rows_container):
                 count = 0
                 for elem in row:
                     if elem != self.zero: #check if the element is not zero element
                         count += 1
-                non_null_elem.append((row,count,row_num+min_row)) #add the row, the number of non-null elements and the row number to the list
+                non_null_container.append((row,count,row_num+min_row)) #add the row, the number of non-null elements and the row number to the list
           
-            rows = list(map(lambda x:(x[0],x[2]),sorted(non_null_elem, key = lambda x: x[1],reverse = True))) #sort the rows by the number of non-null elements
-            for c,aux in enumerate(rows): 
-                row,row_num = aux
+            rows_container = list(map(lambda x:(x[0],x[2]),sorted(non_null_container, key = lambda x: x[1],reverse = True))) #sort the rows by the number of non-null elements
+            for c,spmax in enumerate(rows_container): 
+                row,row_num = spmax
                 offset_idx = 0
                 value_idx = 0
                 row_elem_idx = 0
-                if (values):
+                if (values_container):
                     while row_elem_idx < total_elem_row: #check if the row is not empty
-                        if value_idx + offset_idx < len(values): #check if the value index is not out of range
-                            if (values[value_idx+offset_idx] == self.zero or row[row_elem_idx] == self.zero): 
+                        if value_idx + offset_idx < len(values_container): #check if the value index is not out of range
+                            if (values_container[value_idx+offset_idx] == self.zero or row[row_elem_idx] == self.zero): 
                                 value_idx += 1
                                 row_elem_idx += 1
                             else:
@@ -283,19 +282,19 @@ class MatrixSparseDOK(MatrixSparse):
                                 offset_idx += 1
                         else:
                             break
-                    for i,elem in enumerate(row):
-                        if i + offset_idx < len(values): #check if the value index is not out of range
-                           indexes[i+offset_idx] = row_num  if elem != self.zero else indexes[i+offset_idx] #if the element is not zero, set the row number
-                           values[i+offset_idx] = elem if elem != self.zero else values[i+offset_idx]   #if the element is not zero, set the value
+                    for i,elem in enumerate(rows_container):
+                        if i + offset_idx < len(values_container): #check if the value index is not out of range
+                           indexes_container[i+offset_idx] = row_num  if elem != self.zero else indexes_container[i+offset_idx] #if the element is not zero, set the row number
+                           values_container[i+offset_idx] = elem if elem != self.zero else values_container[i+offset_idx]   #if the element is not zero, set the value
                         else:
-                            indexes.append(row_num if elem != self.zero else -1)
-                            values.append(elem)
+                            indexes_container.append(row_num if elem != self.zero else -1)
+                            values_container.append(elem)
                         offsets[row_num-min_row] = offset_idx                           
                 else:
-                    values = row
-                    indexes = list(map(lambda x: row_num if x != self.zero else -1,row)) 
+                    values_container = rows_container
+                    indexes_container = list(map(lambda x: row_num if x != self.zero else -1,row)) 
                     offsets[0] = offset_idx
-            return ((min_row,min_col), self.zero, tuple(values), tuple(indexes), tuple(offsets))
+            return ((min_row,min_col), self.zero, tuple(values_container), tuple(indexes_container), tuple(offsets))
         raise ValueError("compress() dense matrix")
     
 
