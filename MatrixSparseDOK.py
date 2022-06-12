@@ -6,14 +6,6 @@ from typing import Dict
 spmatrix = Dict[Position, float]
 
 
-# zero=0.0
-# (1,2), 4.5
-# (1,3), 1.1
-# (1,4), 4.5
-# (1,5), 2.1
-# (1,6), 3.3
-# (2,2), 4.5
-# (2,3), 4.5
 
 
 class MatrixSparseDOK(MatrixSparse):
@@ -188,19 +180,21 @@ class MatrixSparseDOK(MatrixSparse):
         return ()
         
     def row(self, row: int) -> Matrix:
-        rowMatrix = MatrixSparseDOK(self.zero)
-        if isinstance(row, int) and row >= 0:
+        #create an instance of MatrixSparseDOK 
+        spmatrix_row = MatrixSparseDOK(self.zero)
+        if isinstance(row, int) and row >= 0: #check if the received row is an integer and if it is positive
             for key in self:
-                if(key[0] == row):
-                    rowMatrix[key] = self[key]
-            return rowMatrix
+                if(key[0] == row): #check if the received row is the same as the row of the key
+                    spmatrix_row[key] = self[key] #if so, add the value of the key to the new matrix
+            return spmatrix_row
 
     def col(self, col: int) -> Matrix:
-        colMatrix = MatrixSparseDOK(self.zero)
+        #create an instance of MatrixSparseDOK 
+        colMatrix = MatrixSparseDOK(self.zero) #check if the received col is an integer and if it is positive
         if isinstance(col, int) and col >= 0:
             for key in self:
-                if(key[1] == col):
-                    colMatrix[key] = self[key]
+                if(key[1] == col): #check if the received row is the same as the col of the key
+                    colMatrix[key] = self[key]  #if so, add the value of the key to the new matri
             return colMatrix
 
     def diagonal(self) -> Matrix:
@@ -212,23 +206,26 @@ class MatrixSparseDOK(MatrixSparse):
 
     @staticmethod
     def eye(size: int, unitary: float = 1.0, zero: float = 0.0) -> MatrixSparseDOK:
+        #check size,zeros and unitary values if are valid
         if isinstance(size,int) and size >=0  and isinstance(unitary,(int,float)) and isinstance(zero,(int,float)):
+            #create a matrix with the received values
             spmax  = MatrixSparseDOK(zero)
             if size >= 0:
                 for x in range(size):
                     for y in range(size):
-                        if x == y:
-                            spmax[(x,y)] = float(unitary)
+                        if x == y: #if the position is on the diagonal example: (0,0)
+                            spmax[(x,y)] = float(unitary) #set the the unitary value on the diagonal
                         else:
-                            spmax[(x,y)] = zero
+                            spmax[(x,y)] = zero #set the rest of the positions to zero
                 return spmax
         else:
             raise ValueError("eye() invalid parameters")
 
     def transpose(self) -> MatrixSparseDOK:
+        #create a new matrix with the transpose of the received matrix
         self.transposeMatrix = MatrixSparseDOK(self.zero)
         for key in self:
-            self.transposeMatrix[key[1],key[0]] = self[key[0],key[1]]
+            self.transposeMatrix[key[1],key[0]] = self[key[0],key[1]] #set the transpose of the received matrix
         return self.transposeMatrix
 
 
@@ -295,6 +292,7 @@ class MatrixSparseDOK(MatrixSparse):
 
     @staticmethod
     def doi(compressed_vector: compressed, pos: Position) -> float:
+        #check if compressed_vector is a compressed vector and pos is a Position
         if isinstance(compressed_vector,tuple) and isinstance(pos,Position):
             up_left, zero, val, index, offsets = compressed_vector
             if( isinstance(up_left,tuple) and
