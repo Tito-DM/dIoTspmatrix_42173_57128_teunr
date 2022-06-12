@@ -33,9 +33,15 @@ class MatrixSparseDOK(MatrixSparse):
             return self._items == other._items
 
     def __iter__(self):
+
+        self.actual = 0
+        self.max = len(self._items)
+        self.iterMatrix = sorted(self._items,key=lambda x: x[self.actual]) #sort by row
+
         self.actual = 0 #new parameter indicating the key being worked on
         self.max = len(self._items) #new parameter indicating the number of keys
         self.iterMatrix = sorted(self._items,key=lambda x: x[0]) #new parameter with a list of the items sorted by row
+
         return self
 
     def __next__(self):
@@ -86,9 +92,14 @@ class MatrixSparseDOK(MatrixSparse):
         else:
             raise ValueError(self.MSG_setter)
  
+<<<<<<< HEAD
     def __len__(self) -> int: 
         return len(self._items) #returns the number of keys
 
+=======
+    def __len__(self) -> int:
+        return len(self._items)
+>>>>>>> 8b9e91b45b29ce275ecdd223039a5b71d27685ee
     def _add_number(self, other: tuple[int, float]) -> Matrix:
         #creates a copy of the received matrix and adds "other" to its non-null values, then returns it
         if isinstance(other, (int, float)):
@@ -163,12 +174,13 @@ class MatrixSparseDOK(MatrixSparse):
 
     def dim(self) -> tuple[Position, position]:
         if (self._items):
-            pos = list(self._items)
-            min_r = pos[0][0]
-            min_c = pos[0][1]
-            max_r = pos[0][0]
-            max_c = pos[0][1]
+            pos = list(self._items) #converts the dictionary to a list of tuples
+            min_r = pos[0][0] #min row
+            min_c = pos[0][1] #min column
+            max_r = pos[0][0] #max row
+            max_c = pos[0][1] #max column
             for p in pos:
+<<<<<<< HEAD
                 if p[0] > max_r:
                     max_r = p[0]
                 if p[0] < min_r:
@@ -178,6 +190,17 @@ class MatrixSparseDOK(MatrixSparse):
                 if p[1] < min_c:
                     min_c = p[1]
             return (Position(min_r, min_c), Position(max_r, max_c)) 
+=======
+                if p[0] > max_r: #if the row is greater than the current max row
+                    max_r = p[0] #set the max row to the current row
+                if p[0] < min_r: #if the row is smaller than the current min row
+                    min_r = p[0] #set the min row to the current row
+                if p[1] > max_c: #if the column is greater than the current max column
+                    max_c = p[1] #set the max column to the current column
+                if p[1] < min_c: #if the column is smaller than the current min column
+                    min_c = p[1] #set the min column to the current column
+            return (Position(min_r, min_c), Position(max_r, max_c)) #return the min and max positions
+>>>>>>> 8b9e91b45b29ce275ecdd223039a5b71d27685ee
         return ()
         
     def row(self, row: int) -> Matrix:
@@ -191,19 +214,19 @@ class MatrixSparseDOK(MatrixSparse):
 
     def col(self, col: int) -> Matrix:
         #create an instance of MatrixSparseDOK 
-        colMatrix = MatrixSparseDOK(self.zero) #check if the received col is an integer and if it is positive
+        spmatrix_col = MatrixSparseDOK(self.zero) #check if the received col is an integer and if it is positive
         if isinstance(col, int) and col >= 0:
             for key in self:
                 if(key[1] == col): #check if the received row is the same as the col of the key
-                    colMatrix[key] = self[key]  #if so, add the value of the key to the new matri
-            return colMatrix
+                    spmatrix_col[key] = self[key]  #if so, add the value of the key to the new matri
+            return spmatrix_col
 
     def diagonal(self) -> Matrix:
-        diagMatrix = MatrixSparseDOK(self.zero)
+        spmatrix_diagonal = MatrixSparseDOK(self.zero) #create an instance of MatrixSparseDOK
         for key in self:
-            if(key[1] == key[0]):
-                diagMatrix[key] = self[key]
-        return diagMatrix
+            if(key[1] == key[0]): #check if the key is on the diagonal
+                spmatrix_diagonal[key] = self[key] #if so, add the value of the key to the new matrix
+        return spmatrix_diagonal
 
     @staticmethod
     def eye(size: int, unitary: float = 1.0, zero: float = 0.0) -> MatrixSparseDOK:
@@ -231,12 +254,13 @@ class MatrixSparseDOK(MatrixSparse):
 
 
     def compress(self) -> compressed:
-        if self.sparsity() >= 0.5:
+        if self.sparsity() >= 0.5: 
+            #set variables
             values = []
             indexes = []
             rows = [] 
             non_null_elem = []
-            upper_left, bottom_right = self.dim()
+            upper_left, bottom_right = self.dim() #get the upper left and bottom right positions of the matrix
             min_row,min_col = upper_left
             max_row,max_col = bottom_right
             total_elem_row = max_col-min_col + 1
@@ -244,28 +268,30 @@ class MatrixSparseDOK(MatrixSparse):
             offsets = [0]*total_rows
             rows = []
             aux = []
+
+
             for x in range(min_row,max_row+1):
-                aux = []
+                #populate the rows list with the number of elements in each row
                 for y in range(min_col,max_col+1):
                     aux.append(self[Position(x,y)])
                 rows.append(aux)
+            #populate tge non_null_elem list with the non null elements of the matrix
             for row_num,row in enumerate(rows):
                 count = 0
                 for elem in row:
-                    if elem != self.zero:
+                    if elem != self.zero: #check if the element is not zero element
                         count += 1
-                non_null_elem.append((row,count,row_num+min_row))
+                non_null_elem.append((row,count,row_num+min_row)) #add the row, the number of non-null elements and the row number to the list
           
-            rows = list(map(lambda x:(x[0],x[2]),sorted(non_null_elem, key = lambda x: x[1],reverse = True)))
-            for c,aux in enumerate(rows):
+            rows = list(map(lambda x:(x[0],x[2]),sorted(non_null_elem, key = lambda x: x[1],reverse = True))) #sort the rows by the number of non-null elements
+            for c,aux in enumerate(rows): 
                 row,row_num = aux
                 offset_idx = 0
                 value_idx = 0
                 row_elem_idx = 0
-                done = False
                 if (values):
-                    while row_elem_idx < total_elem_row: 
-                        if value_idx + offset_idx < len(values): 
+                    while row_elem_idx < total_elem_row: #check if the row is not empty
+                        if value_idx + offset_idx < len(values): #check if the value index is not out of range
                             if (values[value_idx+offset_idx] == self.zero or row[row_elem_idx] == self.zero): 
                                 value_idx += 1
                                 row_elem_idx += 1
@@ -276,9 +302,9 @@ class MatrixSparseDOK(MatrixSparse):
                         else:
                             break
                     for i,elem in enumerate(row):
-                        if i + offset_idx < len(values):
-                            indexes[i+offset_idx] = row_num if elem != self.zero else indexes[i+offset_idx]
-                            values[i+offset_idx] = elem if elem != self.zero else values[i+offset_idx]   
+                        if i + offset_idx < len(values): #check if the value index is not out of range
+                           indexes[i+offset_idx] = row_num  if elem != self.zero else indexes[i+offset_idx] #if the element is not zero, set the row number
+                           values[i+offset_idx] = elem if elem != self.zero else values[i+offset_idx]   #if the element is not zero, set the value
                         else:
                             indexes.append(row_num if elem != self.zero else -1)
                             values.append(elem)
@@ -295,35 +321,36 @@ class MatrixSparseDOK(MatrixSparse):
     def doi(compressed_vector: compressed, pos: Position) -> float:
         #check if compressed_vector is a compressed vector and pos is a Position
         if isinstance(compressed_vector,tuple) and isinstance(pos,Position):
-            up_left, zero, val, index, offsets = compressed_vector
+            up_left, zero, val, index, offsets = compressed_vector #get the values of the compressed vector
             if( isinstance(up_left,tuple) and
              len(up_left) == 2 and isinstance(zero,float) and
               isinstance(val,tuple) and isinstance(index,tuple) and 
               isinstance(offsets,tuple)):
-                min_row, min_col = up_left
-                if index[pos[1] - min_col + offsets[pos[0]-min_row]] == pos[0]:
-                    return val[pos[1] - min_col + offsets[pos[0]-min_row]] 
+                min_row, min_col = up_left #get the upper left position of the compressed vector
+                if index[pos[1] - min_col + offsets[pos[0]-min_row]] == pos[0]: #check if the position is in the compressed vector
+                    return val[pos[1] - min_col + offsets[pos[0]-min_row]] #return the value of the position
                 else:
                     return zero
         raise ValueError("doi() invalid parameters")
 
     @staticmethod
     def decompress(compressed_vector: compressed) -> MatrixSparse:
+        #check if compressed_vector is a compressed vector
         if isinstance(compressed_vector,tuple):
-            up_left, zero, values, index, offsets = compressed_vector
+            up_left, zero, values, index, offsets = compressed_vector #get the values of the compressed vector
             if( isinstance(up_left,tuple) and 
                 isinstance(zero,float) and
                 isinstance(values,tuple) and 
                 isinstance(index,tuple) and 
                 isinstance(offsets,tuple)):
 
-                min_row,min_col = up_left
-                spmax = MatrixSparseDOK(zero)
+                min_row,min_col = up_left #get the upper left position of the compressed vector
+                spmax = MatrixSparseDOK(zero) #create a new matrix with the same zero value
                 x = 0
                 for i,v in enumerate(values):
                     if(index[i] != -1):
-                        spmax[Position(index[i],i + min_col - offsets[index[i] - min_row])] = v
+                        spmax[Position(index[i],i + min_col - offsets[index[i] - min_row])] = v #set the value of the position
                     else:
-                        x += 1
+                        x += 1 #count the number of zero elements
                 return spmax
             raise ValueError("decompress() invalid parameters")
