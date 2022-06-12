@@ -204,10 +204,10 @@ class MatrixSparseDOK(MatrixSparse):
             return spmatrix_col
 
     def diagonal(self) -> Matrix:
-        spmatrix_diagonal = MatrixSparseDOK(self.zero)
+        spmatrix_diagonal = MatrixSparseDOK(self.zero) #create an instance of MatrixSparseDOK
         for key in self:
-            if(key[1] == key[0]):
-                spmatrix_diagonal[key] = self[key]
+            if(key[1] == key[0]): #check if the key is on the diagonal
+                spmatrix_diagonal[key] = self[key] #if so, add the value of the key to the new matrix
         return spmatrix_diagonal
 
     @staticmethod
