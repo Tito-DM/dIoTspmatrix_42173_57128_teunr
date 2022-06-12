@@ -168,21 +168,21 @@ class MatrixSparseDOK(MatrixSparse):
 
     def dim(self) -> tuple[Position, position]:
         if (self._items):
-            pos = list(self._items)
-            min_r = pos[0][0]
-            min_c = pos[0][1]
-            max_r = pos[0][0]
-            max_c = pos[0][1]
+            pos = list(self._items) #converts the dictionary to a list of tuples
+            min_r = pos[0][0] #min row
+            min_c = pos[0][1] #min column
+            max_r = pos[0][0] #max row
+            max_c = pos[0][1] #max column
             for p in pos:
-                if p[0] > max_r:
-                    max_r = p[0]
-                if p[0] < min_r:
-                    min_r = p[0]
-                if p[1] > max_c:
-                    max_c = p[1]
-                if p[1] < min_c:
-                    min_c = p[1]
-            return (Position(min_r, min_c), Position(max_r, max_c))
+                if p[0] > max_r: #if the row is greater than the current max row
+                    max_r = p[0] #set the max row to the current row
+                if p[0] < min_r: #if the row is smaller than the current min row
+                    min_r = p[0] #set the min row to the current row
+                if p[1] > max_c: #if the column is greater than the current max column
+                    max_c = p[1] #set the max column to the current column
+                if p[1] < min_c: #if the column is smaller than the current min column
+                    min_c = p[1] #set the min column to the current column
+            return (Position(min_r, min_c), Position(max_r, max_c)) #return the min and max positions
         return ()
         
     def row(self, row: int) -> Matrix:
