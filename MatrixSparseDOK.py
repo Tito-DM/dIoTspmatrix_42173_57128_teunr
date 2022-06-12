@@ -98,31 +98,34 @@ class MatrixSparseDOK(MatrixSparse):
             return newMatrix
 
     def _add_matrix(self, other: MatrixSparse) -> MatrixSparse:
+        #gets the dimentions of matrixes self and other
         dim1 = self.dim()
         dim2 = other.dim()
+        #gets the lenght and height of both matrices to check for compatability
         dim1_length = (dim1[1][1] - dim1[0][1]) + 1
         dim1_height = (dim1[1][0] - dim1[0][0]) + 1
         dim2_length = (dim2[1][1] - dim2[0][1]) + 1
         dim2_height = (dim2[1][0] - dim2[0][0]) + 1
 
+        #checks compatability, since both matrices must have the same dimention and shape, otherwise can't add
         if((dim1_length == dim2_length) and (dim1_height == dim2_height) and self.zero == other.zero):
              
-            spmatrix = MatrixSparseDOK(self.zero)
+            spmatrix = MatrixSparseDOK(self.zero) #creates the new matrix
             for x in range(dim1_height):
                 for y in range(dim1_length):                 
-                    if (self[x + dim1[0][0], y + dim1[0][1]] == self.zero):
+                    if (self[x + dim1[0][0], y + dim1[0][1]] == self.zero): #ignores matrix zero
                         pass
                     else:
-                        spmatrix[x + dim1[0][0], y + dim1[0][1]] = self[x + dim1[0][0], y + dim1[0][1]]
+                        spmatrix[x + dim1[0][0], y + dim1[0][1]] = self[x + dim1[0][0], y + dim1[0][1]] #copies the value to the new matrix
 
-                    if (other[x + dim2[0][0], y + dim2[0][1]] == other.zero):
+                    if (other[x + dim2[0][0], y + dim2[0][1]] == other.zero): #ignores matrix zero
                         pass
                     elif  spmatrix[x + dim2[0][0], y + dim2[0][1]] != other.zero:
-                         spmatrix[x + dim2[0][0], y + dim2[0][1]] += other[x + dim2[0][0], y + dim2[0][1]]
+                         spmatrix[x + dim2[0][0], y + dim2[0][1]] += other[x + dim2[0][0], y + dim2[0][1]] #adds the value to the new matrix
                     else:
-                         spmatrix[x + dim2[0][0], y + dim2[0][1]] = other[x + dim2[0][0], y + dim2[0][1]]
+                         spmatrix[x + dim2[0][0], y + dim2[0][1]] = other[x + dim2[0][0], y + dim2[0][1]] #copies the value to the new matrix
 
-            return  spmatrix
+            return  spmatrix #returns the matrix
         else:
             raise ValueError("_add_matrix() incompatible matrices")
 
@@ -135,31 +138,35 @@ class MatrixSparseDOK(MatrixSparse):
             return newMatrix
 
     def _mul_matrix(self, other: MatrixSparse) -> MatrixSparse:
+        #gets the dimentions of matrices self and other
         dim1 = self.dim()
         dim2 = other.dim()
+        #gets the lenght and height of both matrices to check for compatability
         dim1_length = (dim1[1][1] - dim1[0][1]) + 1
         dim2_height = (dim2[1][0] - dim2[0][0]) + 1
-        
-        max_row_1,max_col_1 = dim1[1]
-        max_row_2,max_col_2 = dim2[1]
 
         min_row_1,min_col_1 = dim1[0]
         min_row_2,min_col_2 = dim2[0]
+        
+        max_row_1, max_col_1 = dim1[1] # max_col_1 not used but getting error instead
+        max_row_2, max_col_2 = dim2[1] # max_row_2 not used but getting error instead
 
+        #checks compatability, since both matrices must have the same dimention and shape, otherwise can't multiply
         if((dim1_length != dim2_height) or (self.zero != other.zero)):
             raise ValueError("_mul_matrix() incompatible matrices")
         else:
-            result = MatrixSparseDOK(self.zero)
+            spmatrix = MatrixSparseDOK(self.zero) #creates the new matrix
             for x in range(min_row_1, max_row_1 + 1):
                 for y in range(min_col_2, max_col_2 + 1):
                     aux = 0
                     for k in range(dim1_length):
+                        #if the positions in both matrices are not zero, multiplies them
                         if self[(x,k+min_col_1)] != self.zero and other[(k+min_row_2,y)] != other.zero:
                             aux += self[(x,k+min_col_1)]*other[(k+min_row_2,y)]
-                        else:
+                        else: #otherwise continues cycle
                             continue
-                    result[(x,y)] = aux
-        return result
+                    spmatrix[(x,y)] = aux
+        return spmatrix
 
     def dim(self) -> tuple[Position, position]:
         if (self._items):
