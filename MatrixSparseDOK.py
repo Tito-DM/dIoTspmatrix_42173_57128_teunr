@@ -21,6 +21,7 @@ class MatrixSparseDOK(MatrixSparse):
     MSG_setter = "__setitem__() invalid arguments"
 
     def __init__(self, zero: float = 0.0):
+        # if the zero is not an int nor a float, initializes a matrix
         if not isinstance(zero, (int, float)):
             raise ValueError("__init__() invalid arguments")
         #super() para chamar a classe correta, devido às inheritances
@@ -28,16 +29,19 @@ class MatrixSparseDOK(MatrixSparse):
         self._items = {}
 
     def __copy__(self):
+        #for each existing key in the self matrix, creates a similar one on the copy matrix
         copy = MatrixSparseDOK(self.zero)
         for key in self:
             copy[key] = self[key]
         return copy
 
     def __eq__(self, other: MatrixSparseDOK):
+        #copies the other matrix items to the self matrix items
           if isinstance(other,MatrixSparseDOK):
             return self._items == other._items
 
     def __iter__(self):
+        #
         self.actual = 0
         self.max = len(self._items)
         self.iterMatrix = sorted(self._items,key=lambda x: x[self.actual]) #sort by row
