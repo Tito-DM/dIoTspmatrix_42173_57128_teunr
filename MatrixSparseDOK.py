@@ -42,9 +42,9 @@ class MatrixSparseDOK(MatrixSparse):
         if(self.actual < self.max): 
             key = self.iterMatrix[self.actual] #the key being worked is the actual, using the sorted matrix list
             self.actual += 1 #increments the key being worked on for later
-            return key
+            return key #returns the key to work on
         else:
-            raise StopIteration
+            raise StopIteration #finishes the iterations
     
     def __getitem__(self, pos: tuple[Position, position]) -> float:
         #if pos is a tuple(position) with 2 values, and both values are int, and both values zero or 
@@ -86,8 +86,8 @@ class MatrixSparseDOK(MatrixSparse):
         else:
             raise ValueError(self.MSG_setter)
  
-    def __len__(self) -> int:
-        return len(self._items)
+    def __len__(self) -> int: 
+        return len(self._items) #returns the number of keys
 
     def _add_number(self, other: tuple[int, float]) -> Matrix:
         #creates a copy of the received matrix and adds "other" to its non-null values, then returns it
@@ -98,7 +98,7 @@ class MatrixSparseDOK(MatrixSparse):
             return newMatrix
 
     def _add_matrix(self, other: MatrixSparse) -> MatrixSparse:
-        dim1 = self.dim()
+        dim1 = self.dim() 
         dim2 = other.dim()
         dim1_length = (dim1[1][1] - dim1[0][1]) + 1
         dim1_height = (dim1[1][0] - dim1[0][0]) + 1
@@ -177,7 +177,7 @@ class MatrixSparseDOK(MatrixSparse):
                     max_c = p[1]
                 if p[1] < min_c:
                     min_c = p[1]
-            return (Position(min_r, min_c), Position(max_r, max_c))
+            return (Position(min_r, min_c), Position(max_r, max_c)) 
         return ()
         
     def row(self, row: int) -> Matrix:
