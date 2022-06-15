@@ -231,12 +231,104 @@ class MatrixSparseDOK(MatrixSparse):
 
 
     def compress(self) -> compressed:
-        pass
+        values_container = []
+        indexes_container = []
+        non_null_container = []
+        upper_left, bottom_right = self.dim() #get the upper left and bottom right positions of the matrix
+        min_row,min_col = upper_left
+        max_row,max_col = bottom_right
+        total_elem_row = max_col-min_col + 1
+        total_rows = max_row-min_row + 1
+        offsets = [0]*total_rows #create a list with the offsets for each row
+        rows_container  = []
+        spmax = []
+
+        #check if sparsity is greater than 0.5
+        if self.sparsity() >= 0.5:
+            for x in range(min_row,max_row+1):
+                #populate the rows_container list with the number of elements in each row
+                spmax = []
+                for y in range(min_col,max_col+1):
+                    spmax.append(self[Position(x,y)])
+                rows_container.append(spmax)
+                #populate the non_null_container list with the non null elements of the matrix
+            for row_num,row in enumerate(rows_container):
+                count = 0
+                for elem in row:
+                    if elem != self.zero: #check if the element is not zero element
+                        count += 1
+                non_null_container.append((row,count,row_num+min_row)) #add the row, the number of non-null elements and the row number to the list
+          
+            rows_container = list(map(lambda x:(x[0],x[2]),sorted(non_null_container, key = lambda x: x[1],reverse = True)))
+            #sort the rows_container by the number of non-null elements
+            for c,b in enumerate(rows_container):
+                row,row_num = b
+                offset_index = 0
+                value_index = 0
+                row__index = 0
+                if (values_container):
+                    while row__index < total_elem_row: #check if the row is not empty
+                        if value_index + offset_index < len(values_container): #check if the value index is not out of range
+                            if (values_container[value_index+offset_index] == self.zero or row[row__index] == self.zero): 
+                                value_index += 1
+                                row__index += 1
+                            else:
+                                value_index = 0
+                                row__index = 0
+                                offset_index += 1
+                        else:
+                            break
+                    for i,elem in enumerate(row):
+                        if i + offset_index < len(values_container): #check if the value index is not out of range
+                            indexes_container[i+offset_index] = row_num if elem != self.zero else indexes_container[i+offset_index] #if the element is not zero, set the row number
+                            values_container[i+offset_index] = elem if elem != self.zero else values_container[i+offset_index] #if the element is not zero, set the value
+                        else:
+                            indexes_container.append(row_num if elem != self.zero else -1)
+                            values_container.append(elem)
+                        offsets[row_num-min_row] = offset_index                           
+                else:
+                    values_container = row
+                    indexes_container = list(map(lambda x: row_num if x != self.zero else -1,row)) 
+                    offsets[0] = offset_index
+            return ((min_row,min_col), self.zero, tuple(values_container), tuple(indexes_container), tuple(offsets))
+        raise ValueError("compress() dense matrix")
     
+
     @staticmethod
     def doi(compressed_vector: compressed, pos: Position) -> float:
-        pass
+        #check if compressed_vector is a compressed vector and pos is a Position
+        if isinstance(compressed_vector,tuple) and isinstance(pos,Position):
+            up_left, zero, val, index, offsets = compressed_vector #get the values_container of the compressed vector
+            if( isinstance(up_left,tuple) and
+             len(up_left) == 2 and isinstance(zero,float) and
+              isinstance(val,tuple) and isinstance(index,tuple) and 
+              isinstance(offsets,tuple)):
+                min_row, min_col = up_left #get the upper left position of the compressed vector
+                if index[pos[1] - min_col + offsets[pos[0]-min_row]] == pos[0]: #check if the position is in the compressed vector
+                    return val[pos[1] - min_col + offsets[pos[0]-min_row]] #return the value of the position
+                else:
+                    return zero
+        raise ValueError("doi() invalid parameters")
 
     @staticmethod
     def decompress(compressed_vector: compressed) -> MatrixSparse:
-        pass
+        count = 0
+        #check if compressed_vector is a compressed vector
+        if isinstance(compressed_vector,tuple):
+            up_left, zero, values_container, index, offsets = compressed_vector #get the values_container of the compressed vector
+            if( isinstance(up_left,tuple) and 
+                isinstance(zero,float) and
+                isinstance(values_container,tuple) and 
+                isinstance(index,tuple) and 
+                isinstance(offsets,tuple)):
+
+                min_row,min_col = up_left #get the upper left position of the compressed vector
+                spmax = MatrixSparseDOK(zero) #create a new matrix with the same zero value
+               
+                for i,v in enumerate(values_container):
+                    if(index[i] != -1):
+                        spmax[Position(index[i],i + min_col - offsets[index[i] - min_row])] = v #set the value of the position
+                    else:
+                        count += 1 #count the number of zero elements
+                return spmax
+            raise ValueError("decompress() invalid parameters")
